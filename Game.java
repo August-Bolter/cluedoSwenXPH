@@ -5,6 +5,7 @@ package Java;
 
 
 import java.util.*;
+import java.util.concurrent.CountDownLatch;
 
 // line 2 "model.ump"
 // line 176 "model.ump"
@@ -345,8 +346,51 @@ public class Game
     }
   }
 
+  /** begins game by getting player of players and creating player tokens
+   * import java arraylist
+   * @param
+   *
+  */
   // line 8 "model.ump"
    private void settingUp(){
+
+	   try (Scanner scanner = new Scanner(System.in)) {
+
+	   System.out.println("Select number of players from 1 to 6 \n");
+	   int playerNumbers = scanner.nextInt();
+
+	   //
+	   int count = playerNumbers;
+	   ArrayList<String> charachterNames  = new ArrayList<String>();
+	   charachterNames.add("Mrs Peacock");
+	   charachterNames.add("Colonel Mustard");
+	   charachterNames.add(" Miss Scarlett");
+	   charachterNames.add("Professor Plum");
+	   charachterNames.add("Mrs White");
+	   charachterNames.add("Rev.Green");
+	   ArrayList <Token> characterTokens = new ArrayList<Token>();
+
+	   while( count > 0) { // ask user to choose from list of characters. Create character tokens and add into a token arraylist
+		   System.out.printf("Player %d select character: \n", count);
+
+		   for(int i = 0 ; i < charachterNames.size() ; i++) {
+
+			   System.out.println(i + " : " + charachterNames.get(i) + "\n");
+		   }
+
+		   System.out.println("select a letter \n");
+		   int playerSelection = scanner.nextInt(); //scan for player character. should throw an exception for an invalid input
+
+		   Token playerToken = new Token(charachterNames.get(playerSelection));
+		   characterTokens.add(playerToken);
+
+		   charachterNames.remove(playerSelection); //remove character from possible choices
+		   count--;
+	   }
+	   scanner.close();
+	   } //end of try
+
+	   Board gameBoard = new Board(this); //tokens have to be passed and stored into the board
 
   }
 
