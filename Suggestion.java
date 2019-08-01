@@ -15,13 +15,13 @@ public class Suggestion
   //------------------------
 
   //Suggestion Attributes
-  private Set suggSet;
+  private CardSet suggSet;
 
   //------------------------
   // CONSTRUCTOR
   //------------------------
 
-  public Suggestion(Set aSuggSet)
+  public Suggestion(CardSet aSuggSet)
   {
     suggSet = aSuggSet;
   }
@@ -30,7 +30,7 @@ public class Suggestion
   // INTERFACE
   //------------------------
 
-  public boolean setSuggSet(Set aSuggSet)
+  public boolean setSuggSet(CardSet aSuggSet)
   {
     boolean wasSet = false;
     suggSet = aSuggSet;
@@ -38,7 +38,7 @@ public class Suggestion
     return wasSet;
   }
 
-  public Set getSuggSet()
+  public CardSet getSuggSet()
   {
     return suggSet;
   }
@@ -47,7 +47,7 @@ public class Suggestion
   {}
 
   // line 46 "model.ump"
-   public Set getSet(){
+   public CardSet getSet(){
 	   return null;
   }
 

@@ -21,9 +21,9 @@ public class CharacterCard extends Card
   // CONSTRUCTOR
   //------------------------
 
-  public CharacterCard(String aName, Set aSet, String aCharacterName)
+  public CharacterCard(String aCharacterName)
   {
-    super(aName, aSet);
+    super(aCharacterName);
     characterName = aCharacterName;
   }
 
@@ -42,11 +42,6 @@ public class CharacterCard extends Card
   public String getCharacterName()
   {
     return characterName;
-  }
-
-  public void delete()
-  {
-    super.delete();
   }
 
   // line 110 "model.ump"

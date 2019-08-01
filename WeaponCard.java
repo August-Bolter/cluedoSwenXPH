@@ -21,9 +21,9 @@ public class WeaponCard extends Card
   // CONSTRUCTOR
   //------------------------
 
-  public WeaponCard(String aName, Set aSet, String aWeaponName)
+  public WeaponCard(String aWeaponName)
   {
-    super(aName, aSet);
+    super(aWeaponName);
     weaponName = aWeaponName;
   }
 
@@ -42,11 +42,6 @@ public class WeaponCard extends Card
   public String getWeaponName()
   {
     return weaponName;
-  }
-
-  public void delete()
-  {
-    super.delete();
   }
 
   // line 100 "model.ump"

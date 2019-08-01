@@ -15,13 +15,13 @@ public class Accusation
   //------------------------
 
   //Accusation Attributes
-  private Set accSet;
+  private CardSet accSet;
 
   //------------------------
   // CONSTRUCTOR
   //------------------------
 
-  public Accusation(Set aAccSet)
+  public Accusation(CardSet aAccSet)
   {
     accSet = aAccSet;
   }
@@ -30,7 +30,7 @@ public class Accusation
   // INTERFACE
   //------------------------
 
-  public boolean setAccSet(Set aAccSet)
+  public boolean setAccSet(CardSet aAccSet)
   {
     boolean wasSet = false;
     accSet = aAccSet;
@@ -38,7 +38,7 @@ public class Accusation
     return wasSet;
   }
 
-  public Set getAccSet()
+  public CardSet getAccSet()
   {
     return accSet;
   }
@@ -47,7 +47,7 @@ public class Accusation
   {}
 
   // line 54 "model.ump"
-   public Set getSet(){
+   public CardSet getSet(){
 	   return accSet;
   }
 

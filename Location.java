@@ -46,7 +46,13 @@ public class Location
   // INTERFACE
   //------------------------
 
-  public boolean setX(int aX)
+  public Location(int i, int j) {
+	// TODO Auto-generated constructor stub
+	  x = i;
+	  y = j;
+  }
+
+public boolean setX(int aX)
   {
     boolean wasSet = false;
     x = aX;

@@ -17,8 +17,8 @@ public class Game
   //------------------------
 
   //Game Attributes
-  private Set solution;
-  private Card deck;
+  private CardSet solution;
+  private Set<Card> deck;
 
   //Game Associations
   private List<Turn> turns;
@@ -29,20 +29,21 @@ public class Game
   // CONSTRUCTOR
   //------------------------
 
-  public Game(Set aSolution, Card aDeck, Board aBoard)
+  public Game(CardSet aSolution, Set<Card> aDeck, Board aBoard)
   {
     solution = aSolution;
     deck = aDeck;
     turns = new ArrayList<Turn>();
     players = new ArrayList<Player>();
-    if (aBoard == null || aBoard.getGame() != null)
-    {
-      throw new RuntimeException("Unable to create Game due to aBoard. See http://manual.umple.org?RE002ViolationofAssociationMultiplicity.html");
-    }
+//    if (aBoard == null || aBoard.getGame() != null)
+//    {
+//      throw new RuntimeException("Unable to create Game due to aBoard. See http://manual.umple.org?RE002ViolationofAssociationMultiplicity.html");
+//    }
     board = aBoard;
+    settingUp();
   }
 
-  public Game(Set aSolution, Card aDeck)
+  public Game(CardSet aSolution, Set<Card> aDeck)
   {
     solution = aSolution;
     deck = aDeck;
@@ -55,7 +56,7 @@ public class Game
   // INTERFACE
   //------------------------
 
-  public boolean setSolution(Set aSolution)
+  public boolean setSolution(CardSet aSolution)
   {
     boolean wasSet = false;
     solution = aSolution;
@@ -63,7 +64,7 @@ public class Game
     return wasSet;
   }
 
-  public boolean setDeck(Card aDeck)
+  public boolean setDeck(Set<Card> aDeck)
   {
     boolean wasSet = false;
     deck = aDeck;
@@ -71,12 +72,12 @@ public class Game
     return wasSet;
   }
 
-  public Set getSolution()
+  public CardSet getSolution()
   {
     return solution;
   }
 
-  public Card getDeck()
+  public Set<Card> getDeck()
   {
     return deck;
   }
@@ -356,45 +357,106 @@ public class Game
 
 	   try (Scanner scanner = new Scanner(System.in)) {
 
-	   System.out.println("Select number of players from 1 to 6 \n");
+	   System.out.println("How many players do you want? (Enter a number between 1 and 6)\n");
 	   int playerNumbers = scanner.nextInt();
-
-	   //
+	   //Testing for boundaries needs some improvement to repeatedly check, not just once
+	   if (playerNumbers > 6 || playerNumbers < 1) {
+		   //Throw an exception
+	   }
+	   
 	   int count = playerNumbers;
-	   ArrayList<String> charachterNames  = new ArrayList<String>();
-	   charachterNames.add("Mrs Peacock");
-	   charachterNames.add("Colonel Mustard");
-	   charachterNames.add(" Miss Scarlett");
-	   charachterNames.add("Professor Plum");
-	   charachterNames.add("Mrs White");
-	   charachterNames.add("Rev.Green");
+	   ArrayList<String> characterNames  = new ArrayList<String>();
+	   characterNames.add("Mrs. Peacock");
+	   characterNames.add("Colonel Mustard");
+	   characterNames.add("Miss Scarlett");
+	   characterNames.add("Professor Plum");
+	   characterNames.add("Mrs. White");
+	   characterNames.add("Mr. Green");
 	   ArrayList <Token> characterTokens = new ArrayList<Token>();
 
 	   while( count > 0) { // ask user to choose from list of characters. Create character tokens and add into a token arraylist
 		   System.out.printf("Player %d select character: \n", count);
 
-		   for(int i = 0 ; i < charachterNames.size() ; i++) {
+		   for(int i = 0 ; i < characterNames.size() ; i++) {
 
-			   System.out.println(i + " : " + charachterNames.get(i) + "\n");
+			   System.out.println(i + " : " + characterNames.get(i) + "\n");
 		   }
 
-		   System.out.println("select a letter \n");
+		   System.out.println("Please select a character using their respective number \n");
 		   int playerSelection = scanner.nextInt(); //scan for player character. should throw an exception for an invalid input
+		   String charName = characterNames.get(playerSelection);
+		   
+		   Location startLocation = getStartingLocation(playerSelection);
 
-		   Token playerToken = new Token(charachterNames.get(playerSelection));
+		   Token playerToken = new CharacterToken(startLocation, charName);
 		   characterTokens.add(playerToken);
 
-		   charachterNames.remove(playerSelection); //remove character from possible choices
+		   characterNames.remove(playerSelection); //remove character from possible choices
 		   count--;
 	   }
 	   scanner.close();
 	   } //end of try
+	   
+	   //Creating deck
+	   deck = new HashSet<Card>();
+	  
+	   //Creating and adding weapon cards to deck
+	   Card candlestick = new WeaponCard("Candlestick");
+	   Card dagger = new WeaponCard("Dagger");
+	   Card leadPipe = new WeaponCard("Lead Pipe");
+	   Card revolver = new WeaponCard("Revolver");
+	   Card rope = new WeaponCard("Rope");
+	   Card spanner = new WeaponCard("Spanner");
+	   deck.add(candlestick);
+	   deck.add(dagger);
+	   deck.add(leadPipe);
+	   deck.add(revolver);
+	   deck.add(rope);
+	   deck.add(spanner);
+	   
+	   //Adding character cards to deck
+	   Card mrsPeacock = new CharacterCard("Mrs. Peacock");
+	   Card missScarlett = new CharacterCard("Miss Scarlett");
+	   Card colonelMustard = new CharacterCard("Colonel Mustard");
+	   Card mrsWhite = new CharacterCard("Mrs. White");
+	   Card mrGreen = new CharacterCard("Mr. Green");
+	   Card professorPlum = new CharacterCard("Professor Plum");
+	   
+	   //Adding room cards to deck
+	   Card kitchen = new RoomCard("Kitchen");
+	   Card ballRoom = new RoomCard("Ball Room");
+	   Card conservatory = new RoomCard("Kitchen");
+	   Card diningRoom = new RoomCard("Dining Room");
+	   Card billardRoom = new RoomCard("Billard Room");
 
 	   Board gameBoard = new Board(this); //tokens have to be passed and stored into the board
 
   }
 
-  // line 11 "model.ump"
+   //Gets starting location depending on character picked
+  private Location getStartingLocation(int playerSelection) {
+	// TODO Auto-generated method stub
+	if (playerSelection == 0) { //Mrs Peacock
+		return new Location(24, 6);
+	}
+	else if (playerSelection == 1) { //Colonel Mustard
+		return new Location(1, 18);
+	}
+	else if (playerSelection == 2) { //Miss  Scarlett
+		return new Location(8, 25);
+	}
+	else if (playerSelection == 3) { //Professor Plum
+		return new Location(24, 20);
+	}
+	else if (playerSelection == 4) { //Mrs White
+		return new Location(10, 1);
+	}
+	else { //Mr. Green
+		return new Location(15, 1);
+	}
+  }
+
+// line 11 "model.ump"
    private Player whosTurn(){
 	   return null;
   }
@@ -406,5 +468,9 @@ public class Game
             "  " + "solution" + "=" + (getSolution() != null ? !getSolution().equals(this)  ? getSolution().toString().replaceAll("  ","    ") : "this" : "null") + System.getProperties().getProperty("line.separator") +
             "  " + "deck" + "=" + (getDeck() != null ? !getDeck().equals(this)  ? getDeck().toString().replaceAll("  ","    ") : "this" : "null") + System.getProperties().getProperty("line.separator") +
             "  " + "board = "+(getBoard()!=null?Integer.toHexString(System.identityHashCode(getBoard())):"null");
+  }
+  
+  public static void main(String arg[]) {
+	  Game cluedo = new Game(null, null, null); //Change these parameters
   }
 }

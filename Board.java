@@ -35,7 +35,7 @@ public class Board
     room = new ArrayList<Room>();
   }
 
-  public Board(Set aSolutionForGame, Card aDeckForGame)
+  public Board(CardSet aSolutionForGame, Card aDeckForGame)
   {
     game = new Game(aSolutionForGame, aDeckForGame, this);
     loc = new ArrayList<Location>();

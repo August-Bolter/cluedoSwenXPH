@@ -23,11 +23,11 @@ public class CharacterToken extends Token
   // CONSTRUCTOR
   //------------------------
 
-  public CharacterToken(String aName, int aXPos, int aYPos, String aCharacterName)
+  public CharacterToken(Location startingLocation, String aCharacterName)
   {
-    super(aName);
-    xPos = aXPos;
-    yPos = aYPos;
+    super(aCharacterName);
+    xPos = startingLocation.getX();
+    yPos = startingLocation.getY();
     characterName = aCharacterName;
   }
 

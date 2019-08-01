@@ -21,9 +21,9 @@ public class RoomCard extends Card
   // CONSTRUCTOR
   //------------------------
 
-  public RoomCard(String aName, Set aSet, String aRoomName)
+  public RoomCard(String aRoomName)
   {
-    super(aName, aSet);
+    super(aRoomName);
     roomName = aRoomName;
   }
 
@@ -42,11 +42,6 @@ public class RoomCard extends Card
   public String getRoomName()
   {
     return roomName;
-  }
-
-  public void delete()
-  {
-    super.delete();
   }
 
   // line 120 "model.ump"
