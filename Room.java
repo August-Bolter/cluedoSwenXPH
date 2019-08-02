@@ -21,12 +21,13 @@ public class Room
   
   //Room Attributes
   private String name;
+  Location centreLocation;
 
   //Room Associations
   private List<Location> loc;
-  private List<Location>doorwayLoc;
+  private List<Location>doorwayLoc; //method to return this
   private List<Location>wallLoc;
-  private Location centreLocation;
+  
   private List<CharacterToken> playersInRoom;
   
 	//getter and setter methods for centreLocation  
@@ -50,6 +51,8 @@ public class Room
     name = aName;
     loc = new ArrayList<Location>();
     boolean didAddBo = setBo(aBo);
+
+    
     if (!didAddBo)
     {
       throw new RuntimeException("Unable to create room due to bo. See http://manual.umple.org?RE002ViolationofAssociationMultiplicity.html");
@@ -60,17 +63,32 @@ public class Room
   // INTERFACE
   //------------------------
 
-  public boolean inRoomCheck(CharacterToken c) {
+  public String inRoomCheck(CharacterToken c) {
 	  
 	  if(this.playersInRoom.contains(c)) {
-		  return true;
+		  return (this.toString());
 	  }
-	  return false;
+	  return "no characther in this room";
   }
   
-  public List getDoorwayLocations() {
+  public List getCharachterTokens() {
+	  
+	  return this.playersInRoom;
+  }
+  
+  public List<Location> getEntrances() {
 	
-	   return doorwayLoc;  
+	  return doorwayLoc;  
+  }
+  
+  public Location getCenLocation() {
+	return centreLocation;
+	  
+  }
+  
+  public void setCenLocation(Location l) {
+	  centreLocation  = l;
+	  
   }
   
   
