@@ -20,7 +20,8 @@ public class Board
 	//Board Associations
 	private Game game;
 	private List<Location> loc;
-	private List<Room> room;
+	//private List<Room> room;
+	private HashMap<String, Room>rooms;
 	private List<Location> hallwayLocations;
 
 	//------------------------
@@ -35,7 +36,7 @@ public class Board
 		}
 		game = aGame;
 		loc = new ArrayList<Location>();
-		room = new ArrayList<Room>();
+		rooms = new HashMap<String,Room>();
 
 		//generate rooms and generate locations
 		Room dining = new Room("dining room", this);
@@ -49,17 +50,18 @@ public class Board
 		Room library = new Room("library", this);
 		Room cellar = new Room("cellar", this);		
 
-		this.room.add(dining);
-		this.room.add(lounge);
-		this.room.add(kitchen);
-		this.room.add(study);
-		this.room.add(hall);
-		this.room.add(billiard);
-		this.room.add(conservatory);
-		this.room.add(ballroom);
-		this.room.add(library);
-		this.room.add(cellar);
+		this.rooms.put("dining",dining);
+		this.rooms.put("lounge",lounge);
+		this.rooms.put("kitchen",kitchen);
+		this.rooms.put("study",study);
+		this.rooms.put("hall",hall);
+		this.rooms.put("billiard",billiard);
+		this.rooms.put("conservatory",conservatory);
+		this.rooms.put("ballroom",ballroom);
+		this.rooms.put("library",library);
+		this.rooms.put("cellar",cellar);
 
+		
 		//add 600 locations into the locations field
 		for(int i = 0 ; i <= 24 ; i++) {
 			for(int j = 0; j <= 25; j++) {
@@ -69,12 +71,13 @@ public class Board
 		}
 
 		//set locations as part of a room
-		for(Room room : this.room) {
+		for(Room room : this.rooms.values()) {
 			if(room.getName().equals("kitchen")) {
 				for(int i = 1 ; i < 6 ; i++) {
 					for(int j = 0 ; j <6 ; j++) {
 						room.addLoc(new Location(i, j));
 						//Location.setRoom?
+						//this.getRoom(index)
 					}
 				}
 			}
@@ -158,8 +161,7 @@ public class Board
 	{
 		game = new Game(aSolutionForGame, aDeckForGame, this);
 		loc = new ArrayList<Location>();
-		room = new ArrayList<Room>();
-
+	
 	}
 
 	//interface
@@ -268,31 +270,36 @@ public class Board
 	/* Code from template association_GetMany */
 	public Room getRoom(int index)
 	{
-		Room aRoom = room.get(index);
+		Room aRoom = rooms.get(index);
 		return aRoom;
+	}
+	
+	public Room getRoom(String s) {
+		Room room = this.rooms.get(s);
+		return room;
 	}
 
 	public List<Room> getRoom()
 	{
-		List<Room> newRoom = Collections.unmodifiableList(room);
+		List<Room> newRoom = Collections.unmodifiableList(rooms);
 		return newRoom;
 	}
 
 	public int numberOfRoom()
 	{
-		int number = room.size();
+		int number = rooms.size();
 		return number;
 	}
 
 	public boolean hasRoom()
 	{
-		boolean has = room.size() > 0;
+		boolean has = rooms.size() > 0;
 		return has;
 	}
 
 	public int indexOfRoom(Room aRoom)
 	{
-		int index = room.indexOf(aRoom);
+		int index = rooms.indexOf(aRoom);
 		return index;
 	}
 	/* Code from template association_MinimumNumberOfMethod */
@@ -404,7 +411,7 @@ public class Board
 	public boolean addRoom(Room aRoom)
 	{
 		boolean wasAdded = false;
-		if (room.contains(aRoom)) { return false; }
+		if (rooms.contains(aRoom)) { return false; }
 		if (numberOfRoom() >= maximumNumberOfRoom())
 		{
 			return wasAdded;
@@ -424,7 +431,7 @@ public class Board
 		}
 		else
 		{
-			room.add(aRoom);
+			rooms.put(aRoom);
 		}
 		wasAdded = true;
 		return wasAdded;
@@ -444,7 +451,7 @@ public class Board
 		{
 			return wasRemoved;
 		}
-		room.remove(aRoom);
+		rooms.remove(aRoom);
 		wasRemoved = true;
 		return wasRemoved;
 	}
@@ -464,11 +471,11 @@ public class Board
 			loc.remove(aLoc);
 		}
 
-		while (room.size() > 0)
+		while (rooms.size() > 0)
 		{
-			Room aRoom = room.get(room.size() - 1);
+			Room aRoom = rooms.get(rooms.size() - 1);
 			aRoom.delete();
-			room.remove(aRoom);
+			rooms.remove(aRoom);
 		}
 
 	}
