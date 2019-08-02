@@ -19,6 +19,7 @@ public class Board
   private Game game;
   private List<Location> loc;
   private List<Room> room;
+  private List<Location>hallwayLocations;
 
   //------------------------
   // CONSTRUCTOR
@@ -33,19 +34,128 @@ public class Board
     game = aGame;
     loc = new ArrayList<Location>();
     room = new ArrayList<Room>();
-  }
+    
+    //generate rooms and generate locations
+    Room dining = new Room("dining room", this);
+    Room lounge = new Room("lounge", this);
+    Room kitchen = new Room("kitchen", this);
+    Room study = new Room("study", this);
+    Room hall = new Room("hall", this);
+    Room billiard = new Room("billiard room", this);
+    Room conservatory = new Room("conservatory", this);
+    Room ballroom = new Room("ballroom", this);
+    Room library = new Room("library", this);
+    Room cellar = new Room("cellar", this);		
+    
+    this.room.add(dining);
+    this.room.add(lounge);
+    this.room.add(kitchen);
+    this.room.add(study);
+    this.room.add(hall);
+    this.room.add(billiard);
+    this.room.add(conservatory);
+    this.room.add(ballroom);
+    this.room.add(library);
+    this.room.add(cellar);
+    
+    //add 600 locations into the locations field
+    for(int i = 0 ; i <= 24 ; i++) {
+    	for(int j = 0; j <= 25; j++) {
+    		Location newLocation = new Location(i, j);
+    	    loc.add(newLocation);
+    	}
+    }
+    
+    //set locations as part of a room
+    
+    Room room = this.getRoom().get(0);
+    if(room.getName().equals("kitchen")) {
+    	for(int i = 1 ; i < 6 ; i++) {
+    		for(int j = 0 ; j <6 ; j++) {
+    			room.addLoc(new Location(i, j));
+    		}
+    	}
+    }
+    else if(room.getName().equals("ballroom")) {
+    	for(int i = 2; i < 7 ; i++) {
+    		for(int j = 8 ; j < 16 ; j++) {
+    			room.addLoc(new Location(i, j));
+    		}
+    	}
+    }
+    
+    else if(room.getName().equals("conservatory")) {
+    	for(int i = 1; i < 6 ; i++) {
+    		for(int j = 18 ; j < 24 ; j++) {
+    			
+    			if(i==5 && j==18) {
+    				break;
+    			}
+    			room.addLoc(new Location(i, j));
+    		}
+    	}
+    }
+    
+    else if(room.getName().equals("dining room")) {
+    	for(int i = 9; i < 16 ; i++) {
+    		for(int j = 0 ; j < 8 ; j++) {			
+    			if(i==9 && (j == 5 || j == 6 || j==7)) { //rooms to not be added
+    				break;
+    			}
+    			else {
+    			room.addLoc(new Location(i, j));
+    			}
+    		}
+    	}
+    }
+    
+    else if(room.getName().equals("library")) {
+    	for(int i = 14; i < 19 ; i++) {
+    		for(int j = 17 ; j < 24 ; j++) {
+    			if(i== 14 && j == 17) {
+    				break;
+    			}
+    			else {
+    				room.addLoc(new Location(i, j));
+    			}
+    			}
+    		}
+    	}
+    }
+
+     
+  
+
 
   public Board(CardSet aSolutionForGame, Card aDeckForGame)
   {
     game = new Game(aSolutionForGame, aDeckForGame, this);
     loc = new ArrayList<Location>();
     room = new ArrayList<Room>();
+    
+    
   }
 
   //------------------------
   // INTERFACE
   //------------------------
   /* Code from template association_GetOne */
+  
+  public Room returnRoom(String s) {
+	  
+	  for(int i = 0 ; i < this.numberOfRoom(); i++) {
+		  if(s.equals(room.get(i).getName())) {
+			  return room.get(i);
+			  
+		  }
+	  }
+	  
+  }
+  
+  public Set<Locations>getSurroundingLocations(){
+	  return new Set<new Location(0,0)>();
+  }
+  
   public Game getGame()
   {
     return game;
