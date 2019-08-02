@@ -1,5 +1,7 @@
 package Java;
 
+import java.util.Set;
+
 /*PLEASE DO NOT EDIT THIS CODE*/
 /*This code was generated using the UMPLE 1.29.1.4597.b7ac3a910 modeling language!*/
 
@@ -15,8 +17,9 @@ public class Player
   //------------------------
 
   //Player Attributes
-  private Card hand;
+  private Set<Card> hand;
   private CharacterToken token;
+  private boolean haveLost;
 
   //Player Associations
   private Game game;
@@ -25,7 +28,7 @@ public class Player
   // CONSTRUCTOR
   //------------------------
 
-  public Player(Card aHand, CharacterToken aToken, Game aGame)
+  public Player(Set<Card> aHand, CharacterToken aToken, Game aGame)
   {
     hand = aHand;
     token = aToken;
@@ -34,13 +37,22 @@ public class Player
     {
       throw new RuntimeException("Unable to create player due to game. See http://manual.umple.org?RE002ViolationofAssociationMultiplicity.html");
     }
+    haveLost = false;
+  }
+  
+  public boolean haveLost() {
+	  return haveLost;
+  }
+  
+  public void setLost(boolean b) {
+	  haveLost = b;
   }
 
   //------------------------
   // INTERFACE
   //------------------------
 
-  public boolean setHand(Card aHand)
+  public boolean setHand(Set<Card> aHand)
   {
     boolean wasSet = false;
     hand = aHand;
@@ -56,7 +68,7 @@ public class Player
     return wasSet;
   }
 
-  public Card getHand()
+  public Set<Card> getHand()
   {
     return hand;
   }
