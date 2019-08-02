@@ -10,17 +10,36 @@ import java.util.*;
 // line 201 "model.ump"
 public class Room
 {
-
+	
   //------------------------
   // MEMBER VARIABLES
   //------------------------
-
+  public enum roomtype {
+		DOORWAY,
+		WALL,
+  }
+  
   //Room Attributes
   private String name;
 
   //Room Associations
   private List<Location> loc;
-  private Board bo;
+  private List<Location>doorwayLoc;
+  private List<Location>wallLoc;
+  private Location centreLocation;
+  private List<CharacterToken> playersInRoom;
+  
+	//getter and setter methods for centreLocation  
+  public Location getCentreLocation() {
+			return centreLocation;
+		}
+		
+  public void setCentreLocation(Location centreLocation) {
+			this.centreLocation = centreLocation;
+		}
+
+
+   private Board bo;
 
   //------------------------
   // CONSTRUCTOR
@@ -41,6 +60,27 @@ public class Room
   // INTERFACE
   //------------------------
 
+  public boolean inRoomCheck(CharacterToken c) {
+	  
+	  if(this.playersInRoom.contains(c)) {
+		  return true;
+	  }
+	  return false;
+  }
+  
+  public List getDoorwayLocations() {
+	
+	   return doorwayLoc;  
+  }
+  
+  
+  
+  public boolean addPlayerToken(CharacterToken c) {
+	  
+	  if (playersInRoom.add(c)) return true;  
+	  return false;
+  }
+  
   public boolean setName(String aName)
   {
     boolean wasSet = false;
