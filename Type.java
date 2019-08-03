@@ -1,31 +1,52 @@
 package Java;
 
-public class Type extends Location{
-	roomtype r;
+public class Type{
+	private loctype r;
+	private String roomName;
 	
-	public enum roomtype {
+	public enum loctype {
 		FREESPACE,
 		WALL,
-		DOORWAY
+		DOORWAY,
+		ROOM
 	}
 	
-	public Type(Integer i , Integer j, String s) {
-		super(i, j);
+	public Type(String s) {
 		// TODO Auto-generated constructor stub
-		if(s.equals("Free")) {
-			this.r = roomtype.FREESPACE;
+		if(s.equals("Free space")) {
+			this.r = loctype.FREESPACE;
 		}
 		else if (s.equals("Wall")) {
-			this.r = roomtype.WALL;
+			this.r = loctype.WALL;
 		}
-		else if (s.equals("Doorway")) {
-			this.r = roomtype.DOORWAY;
+		else if (s.equals("Room")) {
+			this.r = loctype.ROOM;
 		}
 		
 	}
 	
-	String getType() {
-		return this.r.toString();
+	public Type(String s, String s1) {
+		if (s.equals("Room")) {
+			r = loctype.ROOM;
+			roomName = s1;
+		}
+		else if (s.equals("Doorway")) {
+			r = loctype.DOORWAY;
+			roomName = s1;
+		}
+	}
+	
+	public String getName() {
+		if (r == loctype.FREESPACE) {
+			return "Free space";
+		}
+		else if (r == loctype.WALL) {
+			return "Wall";
+		}
+		else if (r == loctype.DOORWAY) {
+			return roomName + " Doorway";
+		}
+		return roomName;
 	}
 
 }

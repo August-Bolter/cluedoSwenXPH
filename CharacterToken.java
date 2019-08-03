@@ -1,5 +1,7 @@
 package Java;
 
+import java.util.List;
+
 /*PLEASE DO NOT EDIT THIS CODE*/
 /*This code was generated using the UMPLE 1.29.1.4597.b7ac3a910 modeling language!*/
 
@@ -18,6 +20,7 @@ public class CharacterToken extends Token
   private int xPos;
   private int yPos;
   private String characterName;
+  private Room room;
 
   //------------------------
   // CONSTRUCTOR
@@ -29,6 +32,7 @@ public class CharacterToken extends Token
     xPos = startingLocation.getX();
     yPos = startingLocation.getY();
     characterName = aCharacterName;
+    room = null;
   }
 
   //------------------------
@@ -58,7 +62,11 @@ public class CharacterToken extends Token
     wasSet = true;
     return wasSet;
   }
-
+  
+  public Room getRoom() {
+	  return room;
+  }
+  
   public int getXPos()
   {
     return xPos;
@@ -102,4 +110,30 @@ public class CharacterToken extends Token
             "yPos" + ":" + getYPos()+ "," +
             "characterName" + ":" + getCharacterName()+ "]";
   }
+
+public boolean inRoomCheck() {
+	return (room != null);
+}
+
+public String setRoom(Board board) {
+	List<Room> rooms = board.getRoom();
+	boolean foundRoom = false;
+	for(Room r : rooms) {
+		for (Location l : r.getLoc()) {
+			if (l.getX() == getX() && l.getY() == getY()) {
+				room = r;
+				foundRoom = true;
+				//r.addCharacterToken(this);
+			}
+		}
+	}
+	if (!foundRoom) {
+		room = null;
+	}
+	if (room != null) { 
+		return "You are now in the " + room.getName(); 
+	}
+	return "";
+}
+
 }

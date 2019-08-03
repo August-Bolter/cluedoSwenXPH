@@ -1,5 +1,7 @@
 package Java;
 
+import java.io.PrintStream;
+
 /*PLEASE DO NOT EDIT THIS CODE*/
 /*This code was generated using the UMPLE 1.29.1.4597.b7ac3a910 modeling language!*/
 
@@ -24,7 +26,9 @@ public class Game
   private List<Turn> turns;
   private List<Player> players;
   private Board board;
-private boolean gameWon;
+private boolean gameOver;
+private List<Location> startingLocations;
+private List<Card> allCards;
 
   //------------------------
   // CONSTRUCTOR
@@ -36,71 +40,420 @@ private boolean gameWon;
     deck = aDeck;
     turns = new ArrayList<Turn>();
     players = new ArrayList<Player>();
-    gameWon = false;
+    gameOver = false;
+    allCards = new ArrayList<Card>();
 //    if (aBoard == null || aBoard.getGame() != null)
 //    {
 //      throw new RuntimeException("Unable to create Game due to aBoard. See http://manual.umple.org?RE002ViolationofAssociationMultiplicity.html");
 //    }
     board = aBoard;
-    settingUp();
-    playTurns();
+    try {
+    	Scanner s = new Scanner(System.in);
+    	settingUp(s);
+    	playTurns(s);
+    }
+    catch(Exception e) {
+    	e.printStackTrace(System.out);
+    }
+  }
+  
+  public List<Location> getStartingLocations() {
+	  return startingLocations;
+  }
+  
+  /** begins game by getting player of players and creating player tokens
+   * import java arraylist
+ * @param s 
+   * @param
+   *
+  */
+  // line 8 "model.ump"
+   private void settingUp(Scanner scanner){
+	   
+	   //Storing startingLocations
+	   startingLocations = new ArrayList<Location>();
+	   startingLocations.add(new Location(23, 6));
+	   startingLocations.add(new Location(0, 17));
+	   startingLocations.add(new Location(7, 24));
+	   startingLocations.add(new Location(23, 19));
+	   startingLocations.add(new Location(9, 0));
+	   startingLocations.add(new Location(14, 0));
+	   
+	   int playerNumbers = 0;
+	   System.out.println("How many players do you want? (Enter a number between 1 and 6)\n");
+	   boolean isValid = false;
+	   while (!isValid) {
+		   String playerNumbersAsString = scanner.next();
+		   if (playerNumbersAsString.matches("\\d+")) {
+			   playerNumbers = Integer.parseInt(playerNumbersAsString);
+		   }
+		   if (playerNumbers <= 6 && playerNumbers >= 1) {
+			   isValid = true;
+		   }
+		   else {
+			   System.out.println("Please enter a number between 1 and 6");
+		   }
+	   }
+		   
+		   int count = playerNumbers;
+		   ArrayList<String> characterNames  = new ArrayList<String>();
+		   characterNames.add("Mrs. Peacock");
+		   characterNames.add("Colonel Mustard");
+		   characterNames.add("Miss Scarlett");
+		   characterNames.add("Professor Plum");
+		   characterNames.add("Mrs. White");
+		   characterNames.add("Mr. Green");
+		   ArrayList <Token> characterTokens = new ArrayList<Token>();
+	
+		   while( count > 0) { // ask user to choose from list of characters. Create character tokens and add into a token arraylist
+			   System.out.printf("Player %d please select a character using their respective number: \n", (1+playerNumbers-count));
+	
+			   for(int i = 0 ; i < characterNames.size() ; i++) {
+	
+				   System.out.println(i + " : " + characterNames.get(i) + "\n");
+			   }
+			   
+			   isValid = false;
+			   
+			   int playerSelection = -1;
+			   while (!isValid) {
+				   String playerSelectionString = scanner.next();
+				   if (playerSelectionString.matches("\\d+")) {
+					   playerSelection = Integer.parseInt(playerSelectionString);
+				   }
+				   if (playerSelection < characterNames.size() && playerSelection >= 0) {
+					   isValid = true;
+				   }
+				   else {
+					   System.out.println("Please enter a valid number.");
+				   }
+			   }
+ 
+			   String charName = characterNames.get(playerSelection);
+			   
+			   Location startLocation = getStartingLocation(playerSelection);
+	
+			   CharacterToken playerToken = new CharacterToken(startLocation, charName);
+			   characterTokens.add(playerToken);
+	
+			   characterNames.remove(playerSelection); //remove character from possible choices
+			   startingLocations.remove(startLocation);
+			   
+			   Player newPlayer = new Player(new HashSet<Card>(), playerToken, this);
+			   players.add(newPlayer);
+			   count--;
+		   }
+	   
+	   //Creating unshuffled deck
+	   List<Card> unshuffledDeck = new ArrayList<Card>();
+	  
+	   //Creating and adding weapon cards to deck (pre-determined not random, this could be changed later)
+	   WeaponCard candlestick = new WeaponCard("Candlestick");
+	   WeaponCard dagger = new WeaponCard("Dagger");
+	   WeaponCard leadPipe = new WeaponCard("Lead Pipe");
+	   WeaponCard revolver = new WeaponCard("Revolver");
+	   WeaponCard rope = new WeaponCard("Rope");
+	   WeaponCard spanner = new WeaponCard("Spanner");
+	   unshuffledDeck.add(candlestick);
+	   unshuffledDeck.add(dagger);
+	   unshuffledDeck.add(leadPipe);
+	   unshuffledDeck.add(revolver);
+	   unshuffledDeck.add(rope);
+	   unshuffledDeck.add(spanner);
+	   
+	   //Adding character cards to deck
+	   CharacterCard mrsPeacock = new CharacterCard("Mrs. Peacock");
+	   CharacterCard missScarlett = new CharacterCard("Miss Scarlett");
+	   CharacterCard colonelMustard = new CharacterCard("Colonel Mustard");
+	   CharacterCard mrsWhite = new CharacterCard("Mrs. White");
+	   CharacterCard mrGreen = new CharacterCard("Mr. Green");
+	   CharacterCard professorPlum = new CharacterCard("Professor Plum");
+	   unshuffledDeck.add(mrsPeacock);
+	   unshuffledDeck.add(missScarlett);
+	   unshuffledDeck.add(colonelMustard);
+	   unshuffledDeck.add(mrsWhite);
+	   unshuffledDeck.add(mrGreen);
+	   unshuffledDeck.add(professorPlum);
+	   
+	   //Adding room cards to deck
+	   RoomCard kitchen = new RoomCard("Kitchen");
+	   RoomCard ballRoom = new RoomCard("Ball Room");
+	   RoomCard conservatory = new RoomCard("Conservatory");
+	   RoomCard diningRoom = new RoomCard("Dining Room");
+	   RoomCard billardRoom = new RoomCard("Billard Room");
+	   RoomCard library = new RoomCard("Library");
+	   RoomCard lounge = new RoomCard("Lounge");
+	   RoomCard hall = new RoomCard("Hall");
+	   RoomCard study = new RoomCard("Study");
+	   unshuffledDeck.add(kitchen);
+	   unshuffledDeck.add(ballRoom);
+	   unshuffledDeck.add(conservatory);
+	   unshuffledDeck.add(diningRoom);
+	   unshuffledDeck.add(billardRoom);
+	   unshuffledDeck.add(library);
+	   unshuffledDeck.add(lounge);
+	   unshuffledDeck.add(hall);
+	   unshuffledDeck.add(study);
+	   
+	   solution = pickSolution(unshuffledDeck); //Picking solution
+	   
+	   for (Card c : unshuffledDeck) {
+		   allCards.add(c);
+	   }
+	   
+	   //Removing solution from deck
+	   unshuffledDeck.remove(solution.getCharacterC());
+	   unshuffledDeck.remove(solution.getWeaponC());
+	   unshuffledDeck.remove(solution.getRoomC());
+	   
+	   //Initializing shuffled deck
+	   deck = new ArrayList<Card>();
+	   
+	   Set<Integer> pickedIndexes = new HashSet<Integer>();
+	   
+	   //Shuffling deck by picking indexes randomly
+	   while (deck.size() != unshuffledDeck.size()) { //Keep going until we have all the cards
+		   int randomIndex = (int) ((Math.random()*unshuffledDeck.size())); //Pick a card randomly out of unshuffled deck
+		   if (!pickedIndexes.contains(randomIndex)) { //If random card selected is already in shuffled deck don't add it
+			   deck.add(unshuffledDeck.get(randomIndex));
+			   pickedIndexes.add(randomIndex); //So we get no duplicates
+		   }
+	   }
+	   
+	   board = new Board(this); //tokens have to be passed and stored into the board
+	   for (Player p : players) {
+		   board.getLocation(p.getToken().getX(), p.getToken().getY()).setPlayer(p);
+	   }
+	   deal();
+
+  }
+   
+   private void deal() {
+	   List<Card> tempDeck = new ArrayList<Card>();
+	   for (Card c : deck) {
+		   tempDeck.add(c);
+	   }
+	   while (tempDeck.size() > 0) { //Go until we have dealt out all the cards
+		   for (Player p : players) { //Deal a card to each player
+			   //To avoid index out of bounds error
+			   if (tempDeck.size() == 0) {
+				   break;
+			   }
+			   p.addCard(tempDeck.get(0));
+			   tempDeck.remove(0);
+		   }
+	   }
+   }
+
+private CardSet pickSolution(List<Card> unshuffledDeck) {
+	   WeaponCard solutionWeapon;
+	   CharacterCard solutionCharacter;
+	   RoomCard solutionRoom;
+	   solutionWeapon = (WeaponCard) unshuffledDeck.get((int)(Math.random()*6)); //Gets random weapon by getting random card between 0-5 (weapon indexes)
+	   solutionCharacter = (CharacterCard) unshuffledDeck.get((int)(Math.random()*((11-6)+1))+6); //Getting random card between 6 and 11 (character indexes)
+	   solutionRoom = (RoomCard) unshuffledDeck.get((int)(Math.random()*((20-12)+1))+12); //Getting random card between 12 and 20 (room indexes)
+	   
+	   return new CardSet(solutionWeapon, solutionCharacter, solutionRoom);
+}
+
+   //Gets starting location depending on character picked
+  private Location getStartingLocation(int playerSelection) {
+	// TODO Auto-generated method stub
+	return startingLocations.get(playerSelection);
   }
 
   //Creates and plays out turns until the game is finished
-  private void playTurns() {
-	  while(!gameWon()) {
+  private void playTurns(Scanner sc) {
+	PrintStream out = System.out;
+	  while(!gameOver()) {
 		  for (Player p : players) {
-			  //Printing out center point locations of the game, not included yet, will include if there is room
-			  //System.out.println("Room Center-Points:\n");
-			  //for (Room r: board.getRoom()) {
-				//  System.out.println(r.getName() + " (" + r.getCenterLoc() + ", " + ")");
-			  //}
-			  
-			  //Printing the players hand 
-			  System.out.print("Your hand is:\n");
-			  for (Card c : p.getHand()) {
-				  System.out.print(c.getName() + "  ");
+			  if (gameOver()) {
+				  break;
 			  }
+				List<Location> visitedLocations = new ArrayList<Location>();
 			  
 			  //Printing out location of room entrances
-			  System.out.println("Room hallway locations:\n");
+			  out.println("Room hallway locations:");
 			  for (Room r : board.getRoom()) {
 				  int hallwayNumber = 0;
 				  for (Location l : r.getEntrances()) {
 					  hallwayNumber++;
-					  System.out.println(r.getName() + " Entrance " + hallwayNumber + ": (" + l.getX() + ", " + l.getY() + ")\n");
+					  out.println(r.getName() + " Entrance " + hallwayNumber + ": (" + l.getX() + ", " + l.getY() + ")");
 				  }
 			  }
+			  out.println();
+			  out.println("It is " + p.getToken().getName() + " turn");
 			  
-			  if (gameWon()) {
-				  break;
+			  //Printing the players hand 
+			  out.print("Your hand is:\n");
+			  for (Card c : p.getHand()) {
+				  out.print(c.getName() + ",  ");
 			  }
+			  
+			  out.println();
+			  out.println();
+		
 			  if (!p.haveLost()) {
 				  Turn playersTurn = new Turn(this, p); //Create a turn associated with the player
 				  turns.add(playersTurn); //Maybe not needed
-				  int steps = playersTurn.rollDice(); //Number of steps player can move				  
+				  
+				  if (p.getToken().inRoomCheck()) {
+					  List<Location> doorways = p.getToken().getRoom().getDoorwayLocations();
+					  out.println("You are in the " + p.getToken().getRoom().getName());
+					  for (Location l : p.getToken().getRoom().getDoorwayLocations()) {
+						  if (l.getPlayer() != null) {
+							  doorways.remove(l);
+						  }
+					  }
+					  
+					  if (doorways.size() == 0) {
+						  out.println("There are no possible doorways to exit out of. Press any key to finish your turn");
+						  String answer = sc.nextLine();
+						  break;
+					  }
+					  
+					  else {
+						  String output = "Which room entrance would you like to go through?:\n";
+						  boolean validAnswer = false;
+						  if (doorways.size() == 1) {
+							  output = output + "Entrance 1 (A): (" + doorways.get(0).getX() + ", " + doorways.get(0).getY() + ")\n";
+							  out.println(output);
+							  while (!validAnswer) {
+								  String answer = sc.nextLine();
+								  if (answer.equalsIgnoreCase("A")) {
+									  validAnswer = true;
+									  p.getToken().setXPos(doorways.get(0).getX());
+									  p.getToken().setYPos(doorways.get(0).getY());
+								  } 
+								  else {
+									  System.out.println("Invalid answer. Please enter in A");
+								  }
+							  }
+						  }
+						  else if (doorways.size() == 2) {
+							  output = output + "Entrance 1 (A): (" + doorways.get(0).getX() + ", " + doorways.get(0).getY() + ")\n";
+							  output = output + "Entrance 2 (B): (" + doorways.get(1).getX() + ", " + doorways.get(1).getY() + ")\n";
+							  out.println(output);
+							  while (!validAnswer) {
+								  String answer = sc.nextLine();
+								  if (answer.equalsIgnoreCase("A")) {
+									  validAnswer = true;
+									  p.getToken().setXPos(doorways.get(0).getX());
+									  p.getToken().setYPos(doorways.get(0).getY());
+								  } 
+								  else if (answer.equalsIgnoreCase("B")) {
+									  validAnswer = true;
+									  p.getToken().setXPos(doorways.get(1).getX());
+									  p.getToken().setYPos(doorways.get(1).getY());
+								  }
+								  else {
+									  System.out.println("Invalid answer. Please enter in A or B");
+								  }
+							  }
+						  }
+						  else if (doorways.size() == 3) {
+							  output = output + "Entrance 1 (A): (" + doorways.get(0).getX() + ", " + doorways.get(0).getY() + ")\n";
+							  output = output + "Entrance 2 (B): (" + doorways.get(1).getX() + ", " + doorways.get(1).getY() + ")\n";
+							  output = output + "Entrance 3 (C): (" + doorways.get(2).getX() + ", " + doorways.get(2).getY() + ")\n";
+							  out.println(output);
+							  while (!validAnswer) {
+								  String answer = sc.nextLine();
+								  if (answer.equalsIgnoreCase("A")) {
+									  validAnswer = true;
+									  p.getToken().setXPos(doorways.get(0).getX());
+									  p.getToken().setYPos(doorways.get(0).getY());
+								  } 
+								  else if (answer.equalsIgnoreCase("B")) {
+									  validAnswer = true;
+									  p.getToken().setXPos(doorways.get(1).getX());
+									  p.getToken().setYPos(doorways.get(1).getY());
+								  }
+								  else if (answer.equalsIgnoreCase("C")) {
+									  validAnswer = true;
+									  p.getToken().setXPos(doorways.get(2).getX());
+									  p.getToken().setYPos(doorways.get(2).getY());
+								  }
+								  else {
+									  System.out.println("Invalid answer. Please enter in A or B or C");
+								  }
+							  }
+						  }
+						  else {
+							  output = output + "Entrance 1 (A): (" + doorways.get(0).getX() + ", " + doorways.get(0).getY() + ")\n";
+							  output = output + "Entrance 2 (B): (" + doorways.get(1).getX() + ", " + doorways.get(1).getY() + ")\n";
+							  output = output + "Entrance 3 (C): (" + doorways.get(2).getX() + ", " + doorways.get(2).getY() + ")\n";
+							  output = output + "Entrance 4 (D): (" + doorways.get(3).getX() + ", " + doorways.get(3).getY() + ")\n";
+							  out.println(output);
+							  while (!validAnswer) {
+								  String answer = sc.nextLine();
+								  if (answer.equalsIgnoreCase("A")) {
+									  validAnswer = true;
+									  p.getToken().setXPos(doorways.get(0).getX());
+									  p.getToken().setYPos(doorways.get(0).getY());
+								  } 
+								  else if (answer.equalsIgnoreCase("B")) {
+									  validAnswer = true;
+									  p.getToken().setXPos(doorways.get(1).getX());
+									  p.getToken().setYPos(doorways.get(1).getY());
+								  }
+								  else if (answer.equalsIgnoreCase("C")) {
+									  validAnswer = true;
+									  p.getToken().setXPos(doorways.get(2).getX());
+									  p.getToken().setYPos(doorways.get(2).getY());
+								  }
+								  else if (answer.equalsIgnoreCase("D")) {
+									  validAnswer = true;
+									  p.getToken().setXPos(doorways.get(3).getX());
+									  p.getToken().setYPos(doorways.get(3).getY());
+								  }
+								  else {
+									  System.out.println("Invalid answer. Please enter in A or B or C or D");
+								  }
+							  }
+						  }
+						  p.getToken().setRoom(board);
+					  }
+				  }
+				  
+				  int steps = playersTurn.rollDice(); //Number of steps player can move		
+				  out.println("You rolled a " + steps);
 				  //Player must move all their steps
-				  while (steps < 0) {
+				  while (steps > 0) {
 					  //Printing out players current location
+					  
 					  int playerX = p.getToken().getX();
 					  int playerY = p.getToken().getY();
-					  System.out.println("Your current location is: (" + playerX + ", " + playerY + ")\n");
-					  
-					  //Printing out surrondings of player location 
-					  List<Location> surrondingLocations = board.getSurrondingLocations(playerX, playerY);
-					  String[] directionLabels = {"To the west of you is ", "To the northwest of you is ", "To the north of you is ", "To the northeast of you is ", "To the east of you is ", "To the southeast of you is ", "To the south of you is ", "To the southwest of you is "};
+					  out.println("Your current location is: (" + playerX + ", " + playerY + ")\n");
+					  //Printing out surroundings of player location 
+					  List<Location> surrondingLocations = board.getSurroundingLocations(playerX, playerY);
+					  String[] directionLabels = {"West: ", "NorthWest: ", "North: ", "NorthEast: ", "East: ", "SouthEast: ", "South: ", "SouthWest: "};
 					  int i = 0;
 					  for (Location l : surrondingLocations) {
-						  System.out.println(directionLabels[i] + l.getType().toString() + ", ");
+						  if (l == null) {
+							  out.print(directionLabels[i] + "Nothing, ");
+						  }
+						  else if (l.getPlayer() != null) {
+							  out.print(directionLabels[i] + l.getPlayer().getToken().getName() + ", ");
+						  }
+						  else {
+							  out.print(directionLabels[i] + l.getType().getName() + ", ");
+						  }
 						  i++;
 					  }
 					  
-					  //Determing what directions the player can move from their current location
+					  //Determining what directions the player can move from their current location
 					  i = 0;
 					  List<Integer> locInts = new ArrayList<Integer>(); //Location indexes = index relates to direction
 					  for (Location l : surrondingLocations) {
-						  if (l.getType().getString() != "Wall") { //We can't move into a Wall block so don't add them
-							  locInts.add(i);
+						  if (l != null) {
+							  if ((i+2)%2 == 0 && !visitedLocations.contains(l)) { //Don't consider NE, SE etc.
+								  //We can only move into doorways or corridors (also known as free space)
+								  if (l.getType().getName() == "Free space" || l.getType().getName().contains("Doorway")) {
+									  if (l.getPlayer() == null) {
+										  locInts.add(i);
+									  }
+								  }
+							  }
 						  }
 						  i++;
 					  }
@@ -108,61 +461,90 @@ private boolean gameWon;
 					  List<String> directions = new ArrayList<String>();
 					  for (int index : locInts) {
 						  if (index == 0) {directions.add("west (W), ");}
-						  else if (index == 1) {directions.add("northwest (NW), ");}
-						  else if (index == 2) {directions.add("north (N), ");}
-						  else if (index == 3) {directions.add("northeast (NE), ");}
-						  else if (index == 4) {directions.add("east (E), ");}
-						  else if (index == 5) {directions.add("southeast (SE), ");}
-						  else if (index == 6) {directions.add("south (S), ");}
+						  else if (index == 1) {directions.add("northwest (NW) ");}
+						  else if (index == 2) {directions.add("north (N) ");}
+						  else if (index == 3) {directions.add("northeast (NE) ");}
+						  else if (index == 4) {directions.add("east (E) ");}
+						  else if (index == 5) {directions.add("southeast (SE) ");}
+						  else if (index == 6) {directions.add("south (S) ");}
 						  else {directions.add("southwest (SW)");}
 					  }
-					  
+					  out.println();
 					  String directionOutput = "Would you like to move ";
 					  for (String s : directions) {
 						  directionOutput = directionOutput + s;
 					  }
 					  directionOutput = directionOutput + "?\n";
-					  try {
-						  Scanner sc = new Scanner(System.in);
-						  playersTurn.move(1, sc.next());
+					  move(sc, out, playersTurn, visitedLocations, locInts, directionOutput);
+					  String inRoom = p.getToken().setRoom(board);
+					  if (p.getToken().inRoomCheck()) {
+						  out.println(inRoom);
+						  steps = 0;
 					  }
-					  catch (Exception e) {}
-					  
 					  steps--;
 				  }
-				  try {
-					  Scanner sc = new Scanner(System.in);
-					  String answer;
+					  String answer = "";
+					  boolean gonnaSuggest = true;
+					  boolean gonnaAccuse = false;
 					  if (p.getToken().inRoomCheck()) {
 						  //Making a suggestion
-						  System.out.println("Would you like to make a Suggestion (S), or an Accusation (A) or end your turn (E)?\n");
+						  out.println("Would you like to make a Suggestion (S), or an Accusation (A) or end your turn (enter any other key)?\n");
 						  answer = sc.next();
 						  if (answer.equals("S")) {
-							  Suggestion suggestion = makeSuggestion(sc, p, playersTurn);
+							  Suggestion suggestion = makeSuggestion(sc, p, playersTurn, out);
 							  if (suggestion != null) {
-								  refuting(suggestion, p);
+								  refuting(suggestion, p, out, sc);
 							  }
 						  }
-					  }
-					  
-					  System.out.println("Would you like an Accusation (A) or end your turn (E)?\n");
-					  //Making an accusation
-					  if (answer.equals("A")) {
-						  Accusation playersAccusation = makeAccusation(sc, p, playersTurn); 
-						  CardSet accSet = playersAccusation.getAccSet();
-						  if (accSet.getCharacterC() == solution.getCharacterC() && accSet.getRoomC() == solution.getRoomC() && accSet.getWeaponC() == accSet.getWeaponC()) {
-							  gameWon = true;
-							  System.out.println("You are right! You have won the game!");
-							  break;
+						  else if (answer.equals("A")) {
+							  gonnaAccuse = true;
 						  }
 						  else {
-							  p.setLost(true);
-							  System.out.println("You are incorrect. You have lost the game but still have to refute suggestions if you can.\n");
+							  gonnaSuggest = false;
 						  }
 					  }
-		
-				  }
-				  catch (Exception e) {}
+					  if (gonnaSuggest) {
+						  if (!gonnaAccuse) {
+							  out.println("Would you like to make an Accusation (A) or end your turn (enter any other key)?\n");
+							  //Making an accusation
+							  answer = sc.next();
+						  }
+						  if (answer.equals("A") || gonnaAccuse) {
+							  Accusation playersAccusation = makeAccusation(sc, p, playersTurn, out); 
+							  CardSet accSet = playersAccusation.getAccSet();
+							  if (accSet.getCharacterC() == solution.getCharacterC() && accSet.getRoomC() == solution.getRoomC() && accSet.getWeaponC() == accSet.getWeaponC()) {
+								  gameOver = true;
+								  out.println("You are right! You have won the game!");
+								  break;
+							  }
+							  else {
+								  p.setLost(true);
+								  boolean haveAllPlayersLost = true;
+								  
+								  //Moving dead player if they are blocking doorways
+								  int xPos = p.getToken().getX();
+								  int yPos = p.getToken().getY();
+								  
+								  for (Player player : players) {
+									  if (!player.haveLost()) {
+										  haveAllPlayersLost = false;
+									  }
+								  }
+								  if (!haveAllPlayersLost) {
+									  out.println("You are incorrect. You have lost the game but still have to refute suggestions if you can.\n");
+								  }
+								  else {
+									  gameOver = true;
+									  out.println("All players have the lost the game, the game is over");
+								  }
+							  }
+							  try {
+								Thread.sleep(3000);
+							} catch (InterruptedException e) {
+								e.printStackTrace();
+							}
+						  }
+					  }
 				  
 			  }
 		  }
@@ -170,104 +552,241 @@ private boolean gameWon;
 	
   }
 
-  private void refuting(Suggestion suggestion, Player p) {
+  private void move(Scanner sc, PrintStream out, Turn playersTurn, List<Location> visitedLocations, List<Integer> locInts, String directionOutput) {
+	// TODO Auto-generated method stub
+	  out.println(directionOutput);
+	  String direction = sc.next();
+	  int temp = -2;
+	  if (direction.equalsIgnoreCase("W")) {
+		  temp = 0;
+	  }
+	  else if (direction.equalsIgnoreCase("N")) {
+		  temp = 2;
+	  }
+	  else if (direction.equalsIgnoreCase("E")) {
+		  temp = 4;
+	  }
+	  else if (direction.equalsIgnoreCase("S")){
+		  temp = 6;
+	  }
+	  if (locInts.contains(temp)) {
+		  List<Integer> coords = playersTurn.move(1, direction, board);
+		  visitedLocations.add(board.getLocation(coords.get(0), coords.get(1)));
+	  }
+	  
+	  else {
+		  out.println("You cannot move there.");
+		  move(sc, out, playersTurn, visitedLocations, locInts, directionOutput);
+	  }
+	  
+  }
+
+private void refuting(Suggestion suggestion, Player p, PrintStream out, Scanner sc) {
 	  //Go through each player excluding current turns player
 	  for (Player player : players) {
 		  if (player != p) {
+			  List<Card> matchingCards = new ArrayList<Card>();
 			  for (Card c : player.getHand()) {
-				  CardSet cs = suggestion.getSet();
-				  if (c == cs.getWeaponC() || c == cs.getCharacterC() | c == cs.getRoomC()) {
-					  System.out.println("Player controlling " + p.getToken().getName() + " " + " has " + c.getName());
+				  CardSet cs = suggestion.getSuggSet();
+				  if (c == cs.getWeaponC() || c == cs.getCharacterC() || c == cs.getRoomC()) {
+					  matchingCards.add(c);
+					  out.println("Player controlling " + player.getToken().getName() + " has " + c.getName());
+				  }
+			  }
+			  if (matchingCards.size() == 1) {
+				  out.println("Player controlling " + player.getToken().getName() + " has " + matchingCards.get(0).getName());
+			  }
+			  else {
+				  out.println("Player controlling " + player.getToken().getName() + ", you have multiple cards that you can use to refute");
+				  String output = "Which will card will you show?";
+				  boolean validAnswer = false;
+				  if (matchingCards.size() == 2) {
+					  output = output + matchingCards.get(0) + "(A)" + matchingCards.get(1) + "(B)?";
+					  out.println(output);
+					  while (!validAnswer) {
+						  String answer = sc.nextLine();
+						  if (answer.equalsIgnoreCase("A")) {
+							  validAnswer = true;
+							  out.println("Player controlling " + player.getToken().getName() + " has " + matchingCards.get(0).getName());
+						  }
+						  else if (answer.equalsIgnoreCase("B")) {
+							  validAnswer = true;
+							  out.println("Player controlling " + player.getToken().getName() + " has " + matchingCards.get(1).getName());
+						  }
+						  else {
+							  System.out.println("Invalid answer. Please enter in A or B");
+						  }
+					  }
+				  }
+				  else {
+					  output = output + matchingCards.get(0) + "(A)" + matchingCards.get(1) + "(B)" + matchingCards.get(2) + "(C)?";
+					  out.println(output);
+					  while (!validAnswer) {
+						  String answer = sc.nextLine();
+						  if (answer.equalsIgnoreCase("A")) {
+							  validAnswer = true;
+							  out.println("Player controlling " + player.getToken().getName() + " has " + matchingCards.get(0).getName());
+						  }
+						  else if (answer.equalsIgnoreCase("B")) {
+							  validAnswer = true;
+							  out.println("Player controlling " + player.getToken().getName() + " has " + matchingCards.get(1).getName());
+						  }
+						  else if (answer.equalsIgnoreCase("C")) {
+							  validAnswer = true;
+							  out.println("Player controlling " + player.getToken().getName() + " has " + matchingCards.get(2).getName());
+						  }
+						  else {
+							  System.out.println("Invalid answer. Please enter in A or B or C");
+						  }
+					  }
 				  }
 			  }
 		  }
 	  }
   }
 
-  private Suggestion makeSuggestion(Scanner sc, Player p, Turn playersTurn) {
+  private Suggestion makeSuggestion(Scanner sc, Player p, Turn playersTurn, PrintStream out) {
 	  //Checking suggestion isValid
-	  System.out.println("Enter the name of the room you think the murder has taken place in.\n");
-	  String roomName = sc.next();
-	  boolean isValid = false;
-	  Room r = board.getRoom(roomName);
-	  for (CharacterToken t : r.getTokens()) {
-		  if (t == p.getToken()) {
-			  isValid = true;
+	  Room r = null;
+	  String roomName = "";
+	  out.println("Enter the name of the room you think the murder has taken place in.\n");
+	  sc.nextLine();
+	  boolean validAnswer = false;
+	  while (!validAnswer) {
+		  roomName = sc.nextLine();
+		  r = board.getRoom(roomName);
+		  if (r != null) {
+			  validAnswer = true;
+		  }
+		  else {
+			  out.println("Please enter in a valid room name (Kitchen, Dining Room, Ball Room, Conservatory, Billard Room, Library, Study, Hall, Lounge).");
 		  }
 	  }
-	  if (!isValid) {
-		  System.out.println("You have to be in " + roomName + " to make this suggestion. Enter Y if you would like to make another suggestion or if not press N.\n");
+	  if (r != p.getToken().getRoom()) {
+		  out.println("You have to be in " + roomName + " to make this suggestion. Enter Y if you would like to make another suggestion or if not press N.\n");
 		  String answer = sc.next();
-		  if (answer.equals("Y")) {
-			  makeSuggestion(sc, p, playersTurn);
+		  if (answer.equalsIgnoreCase("Y")) {
+			  makeSuggestion(sc, p, playersTurn, out);
 		  }
 		  return null;
 	  }
 	  else {
+		  WeaponCard weaponCard = null;
+		  CharacterCard characterCard = null;
+		  RoomCard roomCard = null;
 		  //Gets details for the card set
-		  System.out.println("Enter the name of the weapon you think was used in the murder.\n");
-		  String weaponName = sc.next();
-		  WeaponCard weaponCard;
-		  CharacterCard characterCard;
-		  RoomCard roomCard;
-		  System.out.println("Enter the name of the person you think is the murderer");
-		  String personName = sc.next();
-		  //Finding cards (may want to move this to a different location)
-		  for (Card c : deck) {
-			  if (c.getName().equals(weaponName)) {
-				  weaponCard = (WeaponCard) c;
+		  out.println("Enter the name of the weapon you think was used in the murder.\n");
+		  
+		  validAnswer = false;
+		  while (!validAnswer) {
+			  String weaponName = sc.nextLine();
+			  Card card = findCard(weaponName);
+			  if (card != null) {
+				  validAnswer = true;
+				  weaponCard = (WeaponCard) card;
 			  }
-			  else if (c.getName().equals(personName)) {
-				  characterCard = (CharacterCard) c;
-			  }
-			  else if (c.getName().equals(roomName)) {
-				  roomCard = (RoomCard) c;
+			  else {
+				  out.println("Please enter in a valid weapon name (Candlestick, Dagger, Lead Pipe, Revolver, Rope, Spanner)");
 			  }
 		  }
 		  
-		  //Boundary testing needed
 		  
+		  out.println("Enter the name of the person you think is the murderer");
+		  
+		  validAnswer = false;
+		  while (!validAnswer) {
+			  String characterName = sc.nextLine();
+			  Card card = findCard(characterName);
+			  if (card != null) {
+				  validAnswer = true;
+				  characterCard = (CharacterCard) card;
+			  }
+			  else {
+				  out.println("Please enter in a valid character name (Miss Scarlett, Colonel Mustard, Mrs. White, Mr. Green, Mrs. Peacock, Professor Plum)");
+			  }
+		  }
+		  
+		  roomCard = (RoomCard) findCard(roomName);
+		  
+		  //Boundary testing needed
 		  playersTurn.makeSuggestion(new CardSet(weaponCard, characterCard, roomCard));
 		  Suggestion playersSuggestion = playersTurn.getSuggestion();  
 		  return playersSuggestion;
 	  }
 	}
   
-  private Accusation makeAccusation(Scanner sc, Player p, Turn playersTurn) {
+  private Card findCard(String cardName) {
+	  for (Card c : allCards) {
+		  if (c.getName().equalsIgnoreCase(cardName)) {
+			  return c;
+		  }
+	  }
+	  return null;
+  }
+  
+  private Accusation makeAccusation(Scanner sc, Player p, Turn playersTurn, PrintStream out) {
+	  
+	  WeaponCard weaponCard = null;
+	  CharacterCard characterCard = null;
+	  RoomCard roomCard = null;
 	  //Gets details for the card set
-	  	  System.out.println("Enter the name of the room you think the murder has taken place in.\n");
-	  	  String roomName = sc.next();
-		  System.out.println("Enter the name of the weapon you think was used in the murder.\n");
-		  String weaponName = sc.next();
-		  WeaponCard weaponCard = null;
-		  CharacterCard characterCard = null;
-		  RoomCard roomCard = null;
-		  System.out.println("Enter the name of the person you think is the murderer");
-		  String personName = sc.next();
-		  //Finding cards (may want to move this to a different location)
-		  for (Card c : deck) {
-			  if (c.getName().equals(weaponName)) {
-				  weaponCard = (WeaponCard) c;
+	  
+	  	  out.println("Enter the name of the room you think the murder has taken place in.\n");
+		  sc.nextLine();
+		  
+		  boolean validAnswer = false;
+		  while (!validAnswer) {
+			  String roomName = sc.nextLine();
+			  Card card = findCard(roomName);
+			  if (card != null) {
+				  validAnswer = true;
+				  roomCard = (RoomCard) card;
 			  }
-			  else if (c.getName().equals(personName)) {
-				  characterCard = (CharacterCard) c;
+			  else {
+				  out.println("Please enter in a valid room name (Kitchen, Dining Room, Ball Room, Conservatory, Billard Room, Library, Study, Hall, Lounge).");
 			  }
-			  else if (c.getName().equals(roomName)) {
-				  roomCard = (RoomCard) c;
+		  }
+
+		  out.println("Enter the name of the weapon you think was used in the murder.\n");
+
+		  validAnswer = false;
+		  while (!validAnswer) {
+			  String weaponName = sc.nextLine();
+			  Card card = findCard(weaponName);
+			  if (card != null) {
+				  validAnswer = true;
+				  weaponCard = (WeaponCard) card;
+			  }
+			  else {
+				  out.println("Please enter in a valid weapon name (Candlestick, Dagger, Lead Pipe, Revolver, Rope, Spanner)");
+			  }
+		  }
+		  
+		  out.println("Enter the name of the person you think is the murderer");
+
+		  validAnswer = false;
+		  while (!validAnswer) {
+			  String characterName = sc.nextLine();
+			  Card card = findCard(characterName);
+			  if (card != null) {
+				  validAnswer = true;
+				  characterCard = (CharacterCard) card;
+			  }
+			  else {
+				  out.println("Please enter in a valid character name (Miss Scarlett, Colonel Mustard, Mrs. White, Mr. Green, Mrs. Peacock, Professor Plum)");
 			  }
 		  }
 		  
 		  //Boundary testing needed
-		  
 		  playersTurn.makeAccusation(new CardSet(weaponCard, characterCard, roomCard));
 		  Accusation playersAccusation = playersTurn.getAccusation();  
 		  return playersAccusation;
 	  }
 
 //A method which determines if the game has been won yet
-private boolean gameWon() {
+private boolean gameOver() {
 	
-	return gameWon ;
+	return gameOver;
 }
 
 public Game(CardSet aSolution, List<Card> aDeck)
@@ -547,199 +1066,6 @@ public Game(CardSet aSolution, List<Card> aDeck)
       wasAdded = addPlayerAt(aPlayer, index);
     }
     return wasAdded;
-  }
-
-  public void delete()
-  {
-    for(int i=turns.size(); i > 0; i--)
-    {
-      Turn aTurn = turns.get(i - 1);
-      aTurn.delete();
-    }
-    for(int i=players.size(); i > 0; i--)
-    {
-      Player aPlayer = players.get(i - 1);
-      aPlayer.delete();
-    }
-    Board existingBoard = board;
-    board = null;
-    if (existingBoard != null)
-    {
-      existingBoard.delete();
-    }
-  }
-
-  /** begins game by getting player of players and creating player tokens
-   * import java arraylist
-   * @param
-   *
-  */
-  // line 8 "model.ump"
-   private void settingUp(){
-
-	   int playerNumbers;
-	   try (Scanner scanner = new Scanner(System.in)) {
-
-	   System.out.println("How many players do you want? (Enter a number between 1 and 6)\n");
-	   playerNumbers = scanner.nextInt();
-	   //Testing for boundaries needs some improvement to repeatedly check, not just once
-	   if (playerNumbers > 6 || playerNumbers < 1) {
-		   //Throw an exception
-	   }
-	   
-	   int count = playerNumbers;
-	   ArrayList<String> characterNames  = new ArrayList<String>();
-	   characterNames.add("Mrs. Peacock");
-	   characterNames.add("Colonel Mustard");
-	   characterNames.add("Miss Scarlett");
-	   characterNames.add("Professor Plum");
-	   characterNames.add("Mrs. White");
-	   characterNames.add("Mr. Green");
-	   ArrayList <Token> characterTokens = new ArrayList<Token>();
-
-	   while( count > 0) { // ask user to choose from list of characters. Create character tokens and add into a token arraylist
-		   System.out.printf("Player %d select character: \n", count);
-
-		   for(int i = 0 ; i < characterNames.size() ; i++) {
-
-			   System.out.println(i + " : " + characterNames.get(i) + "\n");
-		   }
-
-		   System.out.println("Please select a character using their respective number \n");
-		   int playerSelection = scanner.nextInt(); //scan for player character. should throw an exception for an invalid input
-		   String charName = characterNames.get(playerSelection);
-		   
-		   Location startLocation = getStartingLocation(playerSelection);
-
-		   CharacterToken playerToken = new CharacterToken(startLocation, charName);
-		   characterTokens.add(playerToken);
-
-		   characterNames.remove(playerSelection); //remove character from possible choices
-		   
-		   Player newPlayer = new Player(null, playerToken, this);
-		   players.add(newPlayer);
-		   count--;
-	   }
-	   scanner.close();
-	   } //end of try
-	   
-	   //Creating unshuffled deck
-	   List<Card> unshuffledDeck = new ArrayList<Card>();
-	  
-	   //Creating and adding weapon cards to deck (pre-determined not random, this could be changed later)
-	   WeaponCard candlestick = new WeaponCard("Candlestick");
-	   WeaponCard dagger = new WeaponCard("Dagger");
-	   WeaponCard leadPipe = new WeaponCard("Lead Pipe");
-	   WeaponCard revolver = new WeaponCard("Revolver");
-	   WeaponCard rope = new WeaponCard("Rope");
-	   WeaponCard spanner = new WeaponCard("Spanner");
-	   unshuffledDeck.add(candlestick);
-	   unshuffledDeck.add(dagger);
-	   unshuffledDeck.add(leadPipe);
-	   unshuffledDeck.add(revolver);
-	   unshuffledDeck.add(rope);
-	   unshuffledDeck.add(spanner);
-	   
-	   //Adding character cards to deck
-	   CharacterCard mrsPeacock = new CharacterCard("Mrs. Peacock");
-	   CharacterCard missScarlett = new CharacterCard("Miss Scarlett");
-	   CharacterCard colonelMustard = new CharacterCard("Colonel Mustard");
-	   CharacterCard mrsWhite = new CharacterCard("Mrs. White");
-	   CharacterCard mrGreen = new CharacterCard("Mr. Green");
-	   CharacterCard professorPlum = new CharacterCard("Professor Plum");
-	   unshuffledDeck.add(mrsPeacock);
-	   unshuffledDeck.add(missScarlett);
-	   unshuffledDeck.add(colonelMustard);
-	   unshuffledDeck.add(mrsWhite);
-	   unshuffledDeck.add(mrGreen);
-	   unshuffledDeck.add(professorPlum);
-	   
-	   //Adding room cards to deck
-	   RoomCard kitchen = new RoomCard("Kitchen");
-	   RoomCard ballRoom = new RoomCard("Ball Room");
-	   RoomCard conservatory = new RoomCard("Conservatory");
-	   RoomCard diningRoom = new RoomCard("Dining Room");
-	   RoomCard billardRoom = new RoomCard("Billard Room");
-	   RoomCard library = new RoomCard("Library");
-	   RoomCard lounge = new RoomCard("Lounge");
-	   RoomCard hall = new RoomCard("Hall");
-	   RoomCard study = new RoomCard("Study");
-	   unshuffledDeck.add(kitchen);
-	   unshuffledDeck.add(ballRoom);
-	   unshuffledDeck.add(conservatory);
-	   unshuffledDeck.add(diningRoom);
-	   unshuffledDeck.add(billardRoom);
-	   unshuffledDeck.add(library);
-	   unshuffledDeck.add(lounge);
-	   unshuffledDeck.add(hall);
-	   unshuffledDeck.add(study);
-	   
-	   //Initializing shuffled deck
-	   deck = new ArrayList<Card>();
-	   
-	   Set<Integer> pickedIndexes = new HashSet<Integer>();
-	   
-	   //Shuffling deck by picking indexes randomly
-	   while (deck.size() != unshuffledDeck.size()) { //Keep going until we have all the cards
-		   int randomIndex = (int) (Math.random()*unshuffledDeck.size()); //Pick a card randomly out of unshuffled deck
-		   if (!pickedIndexes.contains(randomIndex)) { //If random card selected is already in shuffled deck don't add it
-			   deck.add(unshuffledDeck.get(randomIndex));
-			   pickedIndexes.add(randomIndex); //So we get no duplicates
-		   }
-	   }
-	   
-	   Board gameBoard = new Board(this); //tokens have to be passed and stored into the board
-	   solution = pickSolution();
-	   deal(playerNumbers);
-
-  }
-   
-   private void deal(int pNum) {
-	   List<Card> tempDeck = deck;
-	   while (tempDeck.size() < 0) { //Go until we have dealt out all the cards
-		   for (Player p : players) { //Deal a card to each player
-			   //To avoid index out of bounds error
-			   if (tempDeck.size() == 0) {
-				   break;
-			   }
-			   p.getHand().add(deck.get(0));
-			   tempDeck.remove(0);
-		   }
-	   }
-   }
-
-private CardSet pickSolution() {
-	   WeaponCard solutionWeapon;
-	   CharacterCard solutionCharacter;
-	   RoomCard solutionRoom;
-	   solutionWeapon = (WeaponCard) deck.get((int)(Math.random()*5)); //Gets random weapon by getting random card between 0-5 (weapon indexes)
-	   solutionCharacter = (CharacterCard) deck.get((int)(Math.random()*((11-6)+1))+6); //Getting random card between 6 and 11 (character indexes)
-	   solutionRoom = (RoomCard) deck.get((int)(Math.random()*((20-12)+1))+12); //Getting random card between 12 and 20 (room indexes)
-	   
-	   return new CardSet(solutionWeapon, solutionCharacter, solutionRoom);
-   }
-
-   //Gets starting location depending on character picked
-  private Location getStartingLocation(int playerSelection) {
-	// TODO Auto-generated method stub
-	if (playerSelection == 0) { //Mrs Peacock
-		return new Location(23, 5);
-	}
-	else if (playerSelection == 1) { //Colonel Mustard
-		return new Location(0, 17);
-	}
-	else if (playerSelection == 2) { //Miss  Scarlett
-		return new Location(7, 24);
-	}
-	else if (playerSelection == 3) { //Professor Plum
-		return new Location(23, 19);
-	}
-	else if (playerSelection == 4) { //Mrs White
-		return new Location(9, 0);
-	}
-	else { //Mr. Green
-		return new Location(14, 0);
-	}
   }
 
 // line 11 "model.ump"

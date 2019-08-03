@@ -46,7 +46,7 @@ public class WeaponCard extends Card
 
   // line 100 "model.ump"
    public String getName(){
-	   return null;
+	   return super.getName();
   }
 
 

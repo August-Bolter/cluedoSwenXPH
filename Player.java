@@ -32,11 +32,6 @@ public class Player
   {
     hand = aHand;
     token = aToken;
-    boolean didAddGame = setGame(aGame);
-    if (!didAddGame)
-    {
-      throw new RuntimeException("Unable to create player due to game. See http://manual.umple.org?RE002ViolationofAssociationMultiplicity.html");
-    }
     haveLost = false;
   }
   
@@ -71,6 +66,10 @@ public class Player
   public Set<Card> getHand()
   {
     return hand;
+  }
+  
+  public void addCard(Card c) {
+	  hand.add(c);
   }
 
   public CharacterToken getToken()

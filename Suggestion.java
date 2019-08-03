@@ -46,11 +46,6 @@ public class Suggestion
   public void delete()
   {}
 
-  // line 46 "model.ump"
-   public CardSet getSet(){
-	   return null;
-  }
-
 
   public String toString()
   {

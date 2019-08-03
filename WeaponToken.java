@@ -22,10 +22,9 @@ public class WeaponToken extends Token
   // CONSTRUCTOR
   //------------------------
 
-  public WeaponToken(String aName, Room aResidingRoom, String aWeaponName)
+  public WeaponToken(String aWeaponName)
   {
-    super(aName);
-    residingRoom = aResidingRoom;
+    super(aWeaponName);
     weaponName = aWeaponName;
   }
 

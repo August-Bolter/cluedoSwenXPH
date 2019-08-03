@@ -21,25 +21,35 @@ public class Location
   //Location Associations
   private Board bo;
   private Room room;
+  private Type type;
+  private Player player;
 
   //------------------------
   // CONSTRUCTOR
   //------------------------
 
-  public Location(int aX, int aY, Board aBo, Room aRoom)
+  public Location(int aX, int aY, Board aBo, Room aRoom, String t)
   {
     x = aX;
     y = aY;
-    boolean didAddBo = setBo(aBo);
-    if (!didAddBo)
-    {
-      throw new RuntimeException("Unable to create loc due to bo. See http://manual.umple.org?RE002ViolationofAssociationMultiplicity.html");
-    }
-    boolean didAddRoom = setRoom(aRoom);
-    if (!didAddRoom)
-    {
-      throw new RuntimeException("Unable to create loc due to room. See http://manual.umple.org?RE002ViolationofAssociationMultiplicity.html");
-    }
+    type = null;
+    player = null;
+  }
+  
+  public void setType(Type t) {
+	  type = t;
+  }
+  
+  public void setPlayer(Player p) {
+	  player = p;
+  }
+  
+  public Player getPlayer() {
+	  return player;
+  }
+  
+  public Type getType() {
+	  return type;
   }
 
   //------------------------
@@ -88,25 +98,6 @@ public boolean setX(int aX)
     return room;
   }
   /* Code from template association_SetOneToMany */
-  public boolean setBo(Board aBo)
-  {
-    boolean wasSet = false;
-    if (aBo == null)
-    {
-      return wasSet;
-    }
-
-    Board existingBo = bo;
-    bo = aBo;
-    if (existingBo != null && !existingBo.equals(aBo))
-    {
-      existingBo.removeLoc(this);
-    }
-    bo.addLoc(this);
-    wasSet = true;
-    return wasSet;
-  }
-  /* Code from template association_SetOneToMany */
   public boolean setRoom(Room aRoom)
   {
     boolean wasSet = false;
@@ -124,22 +115,6 @@ public boolean setX(int aX)
     room.addLoc(this);
     wasSet = true;
     return wasSet;
-  }
-
-  public void delete()
-  {
-    Board placeholderBo = bo;
-    this.bo = null;
-    if(placeholderBo != null)
-    {
-      placeholderBo.removeLoc(this);
-    }
-    Room placeholderRoom = room;
-    this.room = null;
-    if(placeholderRoom != null)
-    {
-      placeholderRoom.removeLoc(this);
-    }
   }
 
 
