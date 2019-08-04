@@ -1,51 +1,19 @@
 package Java;
 
-/*PLEASE DO NOT EDIT THIS CODE*/
-/*This code was generated using the UMPLE 1.29.1.4597.b7ac3a910 modeling language!*/
+//A class representing the cards that Cluedo has
+public class Card {
 
+	private String name;
 
+	public Card(String aName) {
+		name = aName;
+	}
 
-// line 29 "model.ump"
-// line 196 "model.ump"
-public class Card
-{
+	public void setName(String aName) {
+		name = aName;
+	}
 
-  //------------------------
-  // MEMBER VARIABLES
-  //------------------------
-
-  //Card Attributes
-  private String name;
-
-  //------------------------
-  // CONSTRUCTOR
-  //------------------------
-
-  public Card(String aName)
-  {
-    name = aName;
-  }
-
-  //------------------------
-  // INTERFACE
-  //------------------------
-
-  public boolean setName(String aName)
-  {
-    boolean wasSet = false;
-    name = aName;
-    wasSet = true;
-    return wasSet;
-  }
-
-  public String getName()
-  {
-    return name;
-  }
-
-  public String toString()
-  {
-    return super.toString() + "["+
-            "name" + ":" + getName()+ "]" + System.getProperties().getProperty("line.separator");
-  }
+	public String getName() {
+		return name;
+	}
 }

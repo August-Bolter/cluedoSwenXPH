@@ -2,152 +2,91 @@ package Java;
 
 import java.util.List;
 
-/*PLEASE DO NOT EDIT THIS CODE*/
-/*This code was generated using the UMPLE 1.29.1.4597.b7ac3a910 modeling language!*/
 
+//A class representing the character token the player controls (or the ones that aren't assigned to any players but are still placed in rooms if they are mentioned in suggestions)
+public class CharacterToken extends Token {
 
+	//Coordinates
+	private int xPos; 
+	private int yPos;
+	
+	private String characterName;
+	private Room room; //The room the token (player) is in, if it is null then the token/player isn't in a room
+	private boolean movedBySuggestion; //If the token was moved into a room because of a suggestion involving them (not on their turn)
 
-// line 123 "model.ump"
-// line 246 "model.ump"
-public class CharacterToken extends Token
-{
+	public CharacterToken(Location startingLocation, String aCharacterName) {
+		super(aCharacterName);
+		xPos = startingLocation.getX();
+		yPos = startingLocation.getY();
+		characterName = aCharacterName;
+		room = null; //Cause starting locations aren't in any rooms
+		movedBySuggestion = false;
+	}
 
-  //------------------------
-  // MEMBER VARIABLES
-  //------------------------
+	public void setMoved(boolean setMove) {
+		movedBySuggestion = setMove;
+	}
 
-  //CharacterToken Attributes
-  private int xPos;
-  private int yPos;
-  private String characterName;
-  private Room room;
-  private boolean movedBySuggestion;
+	public boolean getMoved() {
+		return movedBySuggestion;
+	}
 
-  //------------------------
-  // CONSTRUCTOR
-  //------------------------
+	public void setXPos(int aXPos) {
+		xPos = aXPos;
+	}
 
-  public CharacterToken(Location startingLocation, String aCharacterName)
-  {
-    super(aCharacterName);
-    xPos = startingLocation.getX();
-    yPos = startingLocation.getY();
-    characterName = aCharacterName;
-    room = null;
-    movedBySuggestion = false;
-  }
+	public void setYPos(int aYPos) {
+		yPos = aYPos;
+	}
 
-  //------------------------
-  // INTERFACE
-  //------------------------
-  
-  public void setMoved(boolean setMove) {
-	  movedBySuggestion = setMove;
-  }
-  
-  public boolean getMoved() {
-	  return movedBySuggestion;
-  }
+	public Room getRoom() {
+		return room;
+	}
 
-  public boolean setXPos(int aXPos)
-  {
-    boolean wasSet = false;
-    xPos = aXPos;
-    wasSet = true;
-    return wasSet;
-  }
+	public String getName(){
+		return characterName;
+	}
 
-  public boolean setYPos(int aYPos)
-  {
-    boolean wasSet = false;
-    yPos = aYPos;
-    wasSet = true;
-    return wasSet;
-  }
+	public int getX(){
+		return xPos;
+	}
 
-  public boolean setCharacterName(String aCharacterName)
-  {
-    boolean wasSet = false;
-    characterName = aCharacterName;
-    wasSet = true;
-    return wasSet;
-  }
-  
-  public Room getRoom() {
-	  return room;
-  }
-  
-  public int getXPos()
-  {
-    return xPos;
-  }
+	public int getY(){
+		return yPos;
+	}
 
-  public int getYPos()
-  {
-    return yPos;
-  }
+	/** Checks if the token is in a room */
+	public boolean inRoomCheck() {
+		return (room != null);
+	}
 
-  public String getCharacterName()
-  {
-    return characterName;
-  }
-
-  public void delete()
-  {
-    super.delete();
-  }
-
-  // line 132 "model.ump"
-   public String getName(){
-	   return characterName;
-  }
-
-  // line 136 "model.ump"
-   public int getX(){
-	   return xPos;
-  }
-
-  // line 140 "model.ump"
-   public int getY(){
-	   return yPos;
-  }
-
-
-  public String toString()
-  {
-    return super.toString() + "["+
-            "xPos" + ":" + getXPos()+ "," +
-            "yPos" + ":" + getYPos()+ "," +
-            "characterName" + ":" + getCharacterName()+ "]";
-  }
-
-public boolean inRoomCheck() {
-	return (room != null);
-}
-
-public String setRoom(Board board) {
-	List<Room> rooms = board.getRoom();
-	boolean foundRoom = false;
-	for(Room r : rooms) {
-		for (Location l : r.getLoc()) {
-			if (l.getX() == getX() && l.getY() == getY()) {
-				room = r;
-				foundRoom = true;
-				//r.addCharacterToken(this);
+	/** Sets the room of the token, this is called when the token walks into or out of a room */
+	public String setRoom(Board board) {
+		List<Room> rooms = board.getRoom(); //Grab the rooms of the board
+		boolean foundRoom = false;
+		//Going through each defined area of each room and check if the location of the token is inside the area, if it is the token must be in that room.
+		for(Room r : rooms) {
+			for (Location l : r.getLoc()) {
+				if (l.getX() == getX() && l.getY() == getY()) {
+					room = r;
+					foundRoom = true;
+				}
 			}
 		}
-	}
-	if (!foundRoom) {
-		room = null;
-	}
-	if (room != null) { 
-		return "You are now in the " + room.getName(); 
-	}
-	return "";
-}
+		/** This means the token has walked out (is out of) a room so set room to null */
+		if (!foundRoom) {
+			room = null;
+		}
 
-public void setRoom(Room r) {
-	room = r;
-}
+		if (room != null) { 
+			return "You are now in the " + room.getName(); 
+		}
+		return "";
+	}
+
+	/** Sets the room of the token, used when a token is moved from one room to another directly (due to suggestions) */
+	public void setRoom(Room r) {
+		room = r;
+	}
 
 }

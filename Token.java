@@ -1,55 +1,20 @@
 package Java;
 
-/*PLEASE DO NOT EDIT THIS CODE*/
-/*This code was generated using the UMPLE 1.29.1.4597.b7ac3a910 modeling language!*/
+/** The structure of a token in Cluedo (WeaponToken, CharacterToken) */
+public class Token {
 
+	private String name;
 
+	public Token(String aName) {
+		name = aName;
+	}
 
-// line 88 "model.ump"
-// line 226 "model.ump"
-public class Token
-{
+	public void setName(String aName) {
+		name = aName;
+	}
 
-  //------------------------
-  // MEMBER VARIABLES
-  //------------------------
+	public String getName() {
+		return name;
+	}
 
-  //Token Attributes
-  private String name;
-
-  //------------------------
-  // CONSTRUCTOR
-  //------------------------
-
-  public Token(String aName)
-  {
-    name = aName;
-  }
-
-  //------------------------
-  // INTERFACE
-  //------------------------
-
-  public boolean setName(String aName)
-  {
-    boolean wasSet = false;
-    name = aName;
-    wasSet = true;
-    return wasSet;
-  }
-
-  public String getName()
-  {
-    return name;
-  }
-
-  public void delete()
-  {}
-
-
-  public String toString()
-  {
-    return super.toString() + "["+
-            "name" + ":" + getName()+ "]";
-  }
 }
