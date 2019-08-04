@@ -9,6 +9,8 @@ import java.io.PrintStream;
 import java.util.*;
 import java.util.concurrent.CountDownLatch;
 
+import Java.Type.loctype;
+
 // line 2 "model.ump"
 // line 176 "model.ump"
 public class Game
@@ -29,6 +31,9 @@ public class Game
 private boolean gameOver;
 private List<Location> startingLocations;
 private List<Card> allCards;
+private List<CharacterToken> characterTokens;
+private boolean endingEarly;
+private Room cantEnter;
 
   //------------------------
   // CONSTRUCTOR
@@ -42,6 +47,9 @@ private List<Card> allCards;
     players = new ArrayList<Player>();
     gameOver = false;
     allCards = new ArrayList<Card>();
+    endingEarly = false;
+    cantEnter = null;
+    characterTokens = new ArrayList<CharacterToken>();
 //    if (aBoard == null || aBoard.getGame() != null)
 //    {
 //      throw new RuntimeException("Unable to create Game due to aBoard. See http://manual.umple.org?RE002ViolationofAssociationMultiplicity.html");
@@ -59,6 +67,10 @@ private List<Card> allCards;
   
   public List<Location> getStartingLocations() {
 	  return startingLocations;
+  }
+  
+  public List<CharacterToken> getCharacterTokens() {
+	  return characterTokens;
   }
   
   /** begins game by getting player of players and creating player tokens
@@ -103,7 +115,6 @@ private List<Card> allCards;
 		   characterNames.add("Professor Plum");
 		   characterNames.add("Mrs. White");
 		   characterNames.add("Mr. Green");
-		   ArrayList <Token> characterTokens = new ArrayList<Token>();
 	
 		   while( count > 0) { // ask user to choose from list of characters. Create character tokens and add into a token arraylist
 			   System.out.printf("Player %d please select a character using their respective number: \n", (1+playerNumbers-count));
@@ -142,6 +153,11 @@ private List<Card> allCards;
 			   Player newPlayer = new Player(new HashSet<Card>(), playerToken, this);
 			   players.add(newPlayer);
 			   count--;
+		   }
+		   
+		   //Creating other character tokens so they can be moved into rooms when suggestions are made (even if they aren't controlled by a player)
+		   for (String s : characterNames) {
+			   characterTokens.add(new CharacterToken(new Location(-1, -1), s)); //Location set to -1, -1 because these tokens aren't on the board
 		   }
 	   
 	   //Creating unshuffled deck
@@ -270,282 +286,343 @@ private CardSet pickSolution(List<Card> unshuffledDeck) {
 			  if (gameOver()) {
 				  break;
 			  }
-				List<Location> visitedLocations = new ArrayList<Location>();
-			  
-			  //Printing out location of room entrances
-			  out.println("Room hallway locations:");
-			  for (Room r : board.getRoom()) {
-				  int hallwayNumber = 0;
-				  for (Location l : r.getEntrances()) {
-					  hallwayNumber++;
-					  out.println(r.getName() + " Entrance " + hallwayNumber + ": (" + l.getX() + ", " + l.getY() + ")");
-				  }
-			  }
-			  out.println();
-			  out.println("It is " + p.getToken().getName() + " turn");
-			  
-			  //Printing the players hand 
-			  out.print("Your hand is:\n");
-			  for (Card c : p.getHand()) {
-				  out.print(c.getName() + ",  ");
-			  }
-			  
-			  out.println();
-			  out.println();
-		
 			  if (!p.haveLost()) {
+				  endingEarly = false;
+				  cantEnter = null;
 				  Turn playersTurn = new Turn(this, p); //Create a turn associated with the player
-				  turns.add(playersTurn); //Maybe not needed
+					List<Location> visitedLocations = new ArrayList<Location>();
 				  
-				  if (p.getToken().inRoomCheck()) {
-					  List<Location> doorways = p.getToken().getRoom().getDoorwayLocations();
-					  out.println("You are in the " + p.getToken().getRoom().getName());
-					  for (Location l : p.getToken().getRoom().getDoorwayLocations()) {
-						  if (l.getPlayer() != null) {
-							  doorways.remove(l);
-						  }
-					  }
-					  
-					  if (doorways.size() == 0) {
-						  out.println("There are no possible doorways to exit out of. Press any key to finish your turn");
-						  String answer = sc.nextLine();
-						  break;
-					  }
-					  
-					  else {
-						  String output = "Which room entrance would you like to go through?:\n";
-						  boolean validAnswer = false;
-						  if (doorways.size() == 1) {
-							  output = output + "Entrance 1 (A): (" + doorways.get(0).getX() + ", " + doorways.get(0).getY() + ")\n";
-							  out.println(output);
-							  while (!validAnswer) {
-								  String answer = sc.nextLine();
-								  if (answer.equalsIgnoreCase("A")) {
-									  validAnswer = true;
-									  p.getToken().setXPos(doorways.get(0).getX());
-									  p.getToken().setYPos(doorways.get(0).getY());
-								  } 
-								  else {
-									  System.out.println("Invalid answer. Please enter in A");
-								  }
-							  }
-						  }
-						  else if (doorways.size() == 2) {
-							  output = output + "Entrance 1 (A): (" + doorways.get(0).getX() + ", " + doorways.get(0).getY() + ")\n";
-							  output = output + "Entrance 2 (B): (" + doorways.get(1).getX() + ", " + doorways.get(1).getY() + ")\n";
-							  out.println(output);
-							  while (!validAnswer) {
-								  String answer = sc.nextLine();
-								  if (answer.equalsIgnoreCase("A")) {
-									  validAnswer = true;
-									  p.getToken().setXPos(doorways.get(0).getX());
-									  p.getToken().setYPos(doorways.get(0).getY());
-								  } 
-								  else if (answer.equalsIgnoreCase("B")) {
-									  validAnswer = true;
-									  p.getToken().setXPos(doorways.get(1).getX());
-									  p.getToken().setYPos(doorways.get(1).getY());
-								  }
-								  else {
-									  System.out.println("Invalid answer. Please enter in A or B");
-								  }
-							  }
-						  }
-						  else if (doorways.size() == 3) {
-							  output = output + "Entrance 1 (A): (" + doorways.get(0).getX() + ", " + doorways.get(0).getY() + ")\n";
-							  output = output + "Entrance 2 (B): (" + doorways.get(1).getX() + ", " + doorways.get(1).getY() + ")\n";
-							  output = output + "Entrance 3 (C): (" + doorways.get(2).getX() + ", " + doorways.get(2).getY() + ")\n";
-							  out.println(output);
-							  while (!validAnswer) {
-								  String answer = sc.nextLine();
-								  if (answer.equalsIgnoreCase("A")) {
-									  validAnswer = true;
-									  p.getToken().setXPos(doorways.get(0).getX());
-									  p.getToken().setYPos(doorways.get(0).getY());
-								  } 
-								  else if (answer.equalsIgnoreCase("B")) {
-									  validAnswer = true;
-									  p.getToken().setXPos(doorways.get(1).getX());
-									  p.getToken().setYPos(doorways.get(1).getY());
-								  }
-								  else if (answer.equalsIgnoreCase("C")) {
-									  validAnswer = true;
-									  p.getToken().setXPos(doorways.get(2).getX());
-									  p.getToken().setYPos(doorways.get(2).getY());
-								  }
-								  else {
-									  System.out.println("Invalid answer. Please enter in A or B or C");
-								  }
-							  }
-						  }
-						  else {
-							  output = output + "Entrance 1 (A): (" + doorways.get(0).getX() + ", " + doorways.get(0).getY() + ")\n";
-							  output = output + "Entrance 2 (B): (" + doorways.get(1).getX() + ", " + doorways.get(1).getY() + ")\n";
-							  output = output + "Entrance 3 (C): (" + doorways.get(2).getX() + ", " + doorways.get(2).getY() + ")\n";
-							  output = output + "Entrance 4 (D): (" + doorways.get(3).getX() + ", " + doorways.get(3).getY() + ")\n";
-							  out.println(output);
-							  while (!validAnswer) {
-								  String answer = sc.nextLine();
-								  if (answer.equalsIgnoreCase("A")) {
-									  validAnswer = true;
-									  p.getToken().setXPos(doorways.get(0).getX());
-									  p.getToken().setYPos(doorways.get(0).getY());
-								  } 
-								  else if (answer.equalsIgnoreCase("B")) {
-									  validAnswer = true;
-									  p.getToken().setXPos(doorways.get(1).getX());
-									  p.getToken().setYPos(doorways.get(1).getY());
-								  }
-								  else if (answer.equalsIgnoreCase("C")) {
-									  validAnswer = true;
-									  p.getToken().setXPos(doorways.get(2).getX());
-									  p.getToken().setYPos(doorways.get(2).getY());
-								  }
-								  else if (answer.equalsIgnoreCase("D")) {
-									  validAnswer = true;
-									  p.getToken().setXPos(doorways.get(3).getX());
-									  p.getToken().setYPos(doorways.get(3).getY());
-								  }
-								  else {
-									  System.out.println("Invalid answer. Please enter in A or B or C or D");
-								  }
-							  }
-						  }
-						  p.getToken().setRoom(board);
+				  //Printing out location of room entrances
+				  out.println("Room hallway locations:");
+				  for (Room r : board.getRoom()) {
+					  int hallwayNumber = 0;
+					  for (Location l : r.getEntrances()) {
+						  hallwayNumber++;
+						  out.println(r.getName() + " Entrance " + hallwayNumber + ": (" + l.getX() + ", " + l.getY() + ")");
 					  }
 				  }
+				  out.println();
+				  out.println("It is " + p.getToken().getName() + " turn");
 				  
-				  int steps = playersTurn.rollDice(); //Number of steps player can move		
-				  out.println("You rolled a " + steps);
-				  //Player must move all their steps
-				  while (steps > 0) {
-					  //Printing out players current location
+				  //Printing the players hand 
+				  out.print("Your hand is:\n");
+				  for (Card c : p.getHand()) {
+					  out.print(c.getName() + ",  ");
+				  }
+				  
+				  out.println();
+				  out.println();
 					  
-					  int playerX = p.getToken().getX();
-					  int playerY = p.getToken().getY();
-					  out.println("Your current location is: (" + playerX + ", " + playerY + ")\n");
-					  //Printing out surroundings of player location 
-					  List<Location> surrondingLocations = board.getSurroundingLocations(playerX, playerY);
-					  String[] directionLabels = {"West: ", "NorthWest: ", "North: ", "NorthEast: ", "East: ", "SouthEast: ", "South: ", "SouthWest: "};
-					  int i = 0;
-					  for (Location l : surrondingLocations) {
-						  if (l == null) {
-							  out.print(directionLabels[i] + "Nothing, ");
+					  if (p.getToken().inRoomCheck()) {
+						  if (p.getToken().getMoved()) {
+							  p.getToken().setMoved(false);
+							  out.println("You have been moved to " + p.getToken().getRoom().getName() + ". Would you like to make a Suggestion (S) or move out of the room (any other key)?");
+							  String answer = sc.nextLine();
+							  if (answer.equalsIgnoreCase("S")) {
+								  Suggestion suggestion = makeSuggestion(sc, p, playersTurn, out);
+								  suggestion.moveTokens(players, board, this);
+								  if (suggestion != null) {
+									  refuting(suggestion, p, out, sc);
+								  }
+								  endingEarly = true;
+							  }
 						  }
-						  else if (l.getPlayer() != null) {
-							  out.print(directionLabels[i] + l.getPlayer().getToken().getName() + ", ");
-						  }
-						  else {
-							  out.print(directionLabels[i] + l.getType().getName() + ", ");
-						  }
-						  i++;
-					  }
-					  
-					  //Determining what directions the player can move from their current location
-					  i = 0;
-					  List<Integer> locInts = new ArrayList<Integer>(); //Location indexes = index relates to direction
-					  for (Location l : surrondingLocations) {
-						  if (l != null) {
-							  if ((i+2)%2 == 0 && !visitedLocations.contains(l)) { //Don't consider NE, SE etc.
-								  //We can only move into doorways or corridors (also known as free space)
-								  if (l.getType().getName() == "Free space" || l.getType().getName().contains("Doorway")) {
-									  if (l.getPlayer() == null) {
-										  locInts.add(i);
-									  }
+						  
+						  if (!endingEarly) {
+						  
+							  List<Location> doorways = p.getToken().getRoom().getExits();
+							  out.println("You are in the " + p.getToken().getRoom().getName());
+							  for (Location l : p.getToken().getRoom().getDoorwayLocations()) {
+								  if (l.getPlayer() != null) {
+									  doorways.remove(l);
 								  }
 							  }
-						  }
-						  i++;
-					  }
-					  //Getting direction of leftover locations
-					  List<String> directions = new ArrayList<String>();
-					  for (int index : locInts) {
-						  if (index == 0) {directions.add("west (W), ");}
-						  else if (index == 1) {directions.add("northwest (NW) ");}
-						  else if (index == 2) {directions.add("north (N) ");}
-						  else if (index == 3) {directions.add("northeast (NE) ");}
-						  else if (index == 4) {directions.add("east (E) ");}
-						  else if (index == 5) {directions.add("southeast (SE) ");}
-						  else if (index == 6) {directions.add("south (S) ");}
-						  else {directions.add("southwest (SW)");}
-					  }
-					  out.println();
-					  String directionOutput = "Would you like to move ";
-					  for (String s : directions) {
-						  directionOutput = directionOutput + s;
-					  }
-					  directionOutput = directionOutput + "?\n";
-					  move(sc, out, playersTurn, visitedLocations, locInts, directionOutput);
-					  String inRoom = p.getToken().setRoom(board);
-					  if (p.getToken().inRoomCheck()) {
-						  out.println(inRoom);
-						  steps = 0;
-					  }
-					  steps--;
-				  }
-					  String answer = "";
-					  boolean gonnaSuggest = true;
-					  boolean gonnaAccuse = false;
-					  if (p.getToken().inRoomCheck()) {
-						  //Making a suggestion
-						  out.println("Would you like to make a Suggestion (S), or an Accusation (A) or end your turn (enter any other key)?\n");
-						  answer = sc.next();
-						  if (answer.equals("S")) {
-							  Suggestion suggestion = makeSuggestion(sc, p, playersTurn, out);
-							  if (suggestion != null) {
-								  refuting(suggestion, p, out, sc);
+							  sc.nextLine();
+							  if (doorways.size() == 0) {
+								  out.println("There are no possible doorways to exit out of. Press any key to finish your turn");
+								  String answer = sc.nextLine();
+								  endingEarly = true;;
 							  }
-						  }
-						  else if (answer.equals("A")) {
-							  gonnaAccuse = true;
-						  }
-						  else {
-							  gonnaSuggest = false;
-						  }
-					  }
-					  if (gonnaSuggest) {
-						  if (!gonnaAccuse) {
-							  out.println("Would you like to make an Accusation (A) or end your turn (enter any other key)?\n");
-							  //Making an accusation
-							  answer = sc.next();
-						  }
-						  if (answer.equals("A") || gonnaAccuse) {
-							  Accusation playersAccusation = makeAccusation(sc, p, playersTurn, out); 
-							  CardSet accSet = playersAccusation.getAccSet();
-							  if (accSet.getCharacterC() == solution.getCharacterC() && accSet.getRoomC() == solution.getRoomC() && accSet.getWeaponC() == accSet.getWeaponC()) {
-								  gameOver = true;
-								  out.println("You are right! You have won the game!");
-								  break;
-							  }
+							  
 							  else {
-								  p.setLost(true);
-								  boolean haveAllPlayersLost = true;
-								  
-								  //Moving dead player if they are blocking doorways
-								  int xPos = p.getToken().getX();
-								  int yPos = p.getToken().getY();
-								  
-								  for (Player player : players) {
-									  if (!player.haveLost()) {
-										  haveAllPlayersLost = false;
+								  String output = "Which exit would you like to go to?:\n";
+								  boolean validAnswer = false;
+								  if (doorways.size() == 1) {
+									  output = output + "Entrance 1 (A): (" + doorways.get(0).getX() + ", " + doorways.get(0).getY() + ")\n";
+									  out.println(output);
+									  while (!validAnswer) {
+										  String answer = sc.nextLine();
+										  if (answer.equalsIgnoreCase("A")) {
+											  validAnswer = true;
+											  p.getToken().setXPos(doorways.get(0).getX());
+											  p.getToken().setYPos(doorways.get(0).getY());
+										  } 
+										  else {
+											  System.out.println("Invalid answer. Please enter in A");
+										  }
 									  }
 								  }
-								  if (!haveAllPlayersLost) {
-									  out.println("You are incorrect. You have lost the game but still have to refute suggestions if you can.\n");
+								  else if (doorways.size() == 2) {
+									  output = output + "Entrance 1 (A): (" + doorways.get(0).getX() + ", " + doorways.get(0).getY() + ")\n";
+									  output = output + "Entrance 2 (B): (" + doorways.get(1).getX() + ", " + doorways.get(1).getY() + ")\n";
+									  out.println(output);
+									  while (!validAnswer) {
+										  String answer = sc.nextLine();
+										  if (answer.equalsIgnoreCase("A")) {
+											  validAnswer = true;
+											  p.getToken().setXPos(doorways.get(0).getX());
+											  p.getToken().setYPos(doorways.get(0).getY());
+										  } 
+										  else if (answer.equalsIgnoreCase("B")) {
+											  validAnswer = true;
+											  p.getToken().setXPos(doorways.get(1).getX());
+											  p.getToken().setYPos(doorways.get(1).getY());
+										  }
+										  else {
+											  System.out.println("Invalid answer. Please enter in A or B");
+										  }
+									  }
+								  }
+								  else if (doorways.size() == 3) {
+									  output = output + "Entrance 1 (A): (" + doorways.get(0).getX() + ", " + doorways.get(0).getY() + ")\n";
+									  output = output + "Entrance 2 (B): (" + doorways.get(1).getX() + ", " + doorways.get(1).getY() + ")\n";
+									  output = output + "Entrance 3 (C): (" + doorways.get(2).getX() + ", " + doorways.get(2).getY() + ")\n";
+									  out.println(output);
+									  while (!validAnswer) {
+										  String answer = sc.nextLine();
+										  if (answer.equalsIgnoreCase("A")) {
+											  validAnswer = true;
+											  p.getToken().setXPos(doorways.get(0).getX());
+											  p.getToken().setYPos(doorways.get(0).getY());
+										  } 
+										  else if (answer.equalsIgnoreCase("B")) {
+											  validAnswer = true;
+											  p.getToken().setXPos(doorways.get(1).getX());
+											  p.getToken().setYPos(doorways.get(1).getY());
+										  }
+										  else if (answer.equalsIgnoreCase("C")) {
+											  validAnswer = true;
+											  p.getToken().setXPos(doorways.get(2).getX());
+											  p.getToken().setYPos(doorways.get(2).getY());
+										  }
+										  else {
+											  System.out.println("Invalid answer. Please enter in A or B or C");
+										  }
+									  }
 								  }
 								  else {
-									  gameOver = true;
-									  out.println("All players have the lost the game, the game is over");
+									  output = output + "Entrance 1 (A): (" + doorways.get(0).getX() + ", " + doorways.get(0).getY() + ")\n";
+									  output = output + "Entrance 2 (B): (" + doorways.get(1).getX() + ", " + doorways.get(1).getY() + ")\n";
+									  output = output + "Entrance 3 (C): (" + doorways.get(2).getX() + ", " + doorways.get(2).getY() + ")\n";
+									  output = output + "Entrance 4 (D): (" + doorways.get(3).getX() + ", " + doorways.get(3).getY() + ")\n";
+									  out.println(output);
+									  while (!validAnswer) {
+										  String answer = sc.nextLine();
+										  if (answer.equalsIgnoreCase("A")) {
+											  validAnswer = true;
+											  p.getToken().setXPos(doorways.get(0).getX());
+											  p.getToken().setYPos(doorways.get(0).getY());
+										  } 
+										  else if (answer.equalsIgnoreCase("B")) {
+											  validAnswer = true;
+											  p.getToken().setXPos(doorways.get(1).getX());
+											  p.getToken().setYPos(doorways.get(1).getY());
+										  }
+										  else if (answer.equalsIgnoreCase("C")) {
+											  validAnswer = true;
+											  p.getToken().setXPos(doorways.get(2).getX());
+											  p.getToken().setYPos(doorways.get(2).getY());
+										  }
+										  else if (answer.equalsIgnoreCase("D")) {
+											  validAnswer = true;
+											  p.getToken().setXPos(doorways.get(3).getX());
+											  p.getToken().setYPos(doorways.get(3).getY());
+										  }
+										  else {
+											  System.out.println("Invalid answer. Please enter in A or B or C or D");
+										  }
+									  }
 								  }
+								  cantEnter = p.getToken().getRoom();
+								  p.getToken().setRoom(board);
 							  }
-							  try {
-								Thread.sleep(3000);
-							} catch (InterruptedException e) {
-								e.printStackTrace();
-							}
 						  }
 					  }
-				  
+					  
+					  if (!endingEarly) {
+						  int steps = playersTurn.rollDice(); //Number of steps player can move		
+						  out.println("You rolled a " + steps);
+						  //Player must move all their steps
+						  while (steps > 0) {
+							  //Printing out players current location
+							  
+							  int playerX = p.getToken().getX();
+							  int playerY = p.getToken().getY();
+							  out.println("Your current location is: (" + playerX + ", " + playerY + ")\n");
+							  //Printing out surroundings of player location 
+							  List<Location> surrondingLocations = board.getSurroundingLocations(playerX, playerY);
+							  String[] directionLabels = {"West: ", "NorthWest: ", "North: ", "NorthEast: ", "East: ", "SouthEast: ", "South: ", "SouthWest: "};
+							  int i = 0;
+							  boolean facingCorrectDirection = false;
+							  for (Location l : surrondingLocations) {
+								  if (l == null) {
+									  out.print(directionLabels[i] + "Nothing, ");
+								  }
+								  else if (l.getPlayer() != null && !l.getType().getName().contains("Doorway")) {
+									  out.print(directionLabels[i] + l.getPlayer().getToken().getName() + ", ");
+								  }
+								  else {
+									  if (l.getType().getLocType() == loctype.DOORWAY) {
+										  Room doorwayRoom = null;
+										  for (Room r : board.getRoom()) {
+											  if (l.getType().getName().contains(r.getName())) {
+												  doorwayRoom = r;
+											  }
+										  }
+										  for (Location loc : doorwayRoom.getExits()) {
+											  if (loc.getX() == p.getToken().getX() && loc.getY() == p.getToken().getY()) {
+												  out.print(directionLabels[i] + l.getType().getName() + ", ");
+												  facingCorrectDirection = true;
+												  break;
+											  }
+										  }
+										  if (!facingCorrectDirection) {
+											  out.print(directionLabels[i] + l.getType().getName() + " (enter through " + board.getDirection(l, board.getClosestExit(l, doorwayRoom)) + "), ");
+										  }
+									  }
+									  else {
+										  out.print(directionLabels[i] + l.getType().getName() + ", ");
+									  }
+								  }
+								  i++;
+							  }
+							  
+							  //Determining what directions the player can move from their current location
+							  i = 0;
+							  List<Integer> locInts = new ArrayList<Integer>(); //Location indexes = index relates to direction
+							  for (Location l : surrondingLocations) {
+								  if (l != null) {
+									  if ((i+2)%2 == 0 && !visitedLocations.contains(l)) { //Don't consider NE, SE etc.
+										  //We can only move into doorways or corridors (also known as free space)
+										  if (l.getType().getName() == "Free space") {
+											  if (l.getPlayer() == null) {
+												  locInts.add(i);
+											  }
+										  }
+										  else if (l.getType().getName().contains("Doorway")) {
+											  if (cantEnter != null) {
+												  if (!l.getType().getName().contains(cantEnter.getName()) && facingCorrectDirection) {
+													  locInts.add(i);
+												  }
+											  }
+											  else if (facingCorrectDirection) {
+												  locInts.add(i);
+											  }
+										  }
+									  }
+								  }
+								  i++;
+							  }
+							  //Getting direction of leftover locations
+							  List<String> directions = new ArrayList<String>();
+							  for (int index : locInts) {
+								  if (index == 0) {directions.add("west (W), ");}
+								  else if (index == 1) {directions.add("northwest (NW) ");}
+								  else if (index == 2) {directions.add("north (N) ");}
+								  else if (index == 3) {directions.add("northeast (NE) ");}
+								  else if (index == 4) {directions.add("east (E) ");}
+								  else if (index == 5) {directions.add("southeast (SE) ");}
+								  else if (index == 6) {directions.add("south (S) ");}
+								  else {directions.add("southwest (SW)");}
+							  }
+							  out.println();
+							  String directionOutput = "Would you like to move ";
+							  for (String s : directions) {
+								  directionOutput = directionOutput + s;
+							  }
+							  directionOutput = directionOutput + "?\n";
+							  move(sc, out, playersTurn, visitedLocations, locInts, directionOutput);
+							  String inRoom = p.getToken().setRoom(board);
+							  if (p.getToken().inRoomCheck()) {
+								  out.println(inRoom);
+								  steps = 0;
+							  }
+							  steps--;
+						  }
+							  String answer = "";
+							  boolean gonnaSuggest = true;
+							  boolean gonnaAccuse = false;
+							  if (p.getToken().inRoomCheck()) {
+								  //Making a suggestion
+								  out.println("Would you like to make a Suggestion (S), or an Accusation (A) or end your turn (enter any other key)?\n");
+								  answer = sc.next();
+								  if (answer.equals("S")) {
+									  Suggestion suggestion = makeSuggestion(sc, p, playersTurn, out);
+									  suggestion.moveTokens(players, board, this);
+									  if (suggestion != null) {
+										  refuting(suggestion, p, out, sc);
+									  }
+								  }
+								  else if (answer.equals("A")) {
+									  gonnaAccuse = true;
+								  }
+								  else {
+									  gonnaSuggest = false;
+								  }
+							  }
+							  if (gonnaSuggest) {
+								  if (!gonnaAccuse) {
+									  out.println("Would you like to make an Accusation (A) or end your turn (enter any other key)?\n");
+									  //Making an accusation
+									  answer = sc.next();
+								  }
+								  if (answer.equals("A") || gonnaAccuse) {
+									  Accusation playersAccusation = makeAccusation(sc, p, playersTurn, out); 
+									  CardSet accSet = playersAccusation.getAccSet();
+									  if (accSet.getCharacterC() == solution.getCharacterC() && accSet.getRoomC() == solution.getRoomC() && accSet.getWeaponC() == accSet.getWeaponC()) {
+										  gameOver = true;
+										  out.println("You are right! You have won the game!");
+										  break;
+									  }
+									  else {
+										  p.setLost(true);
+										  boolean haveAllPlayersLost = true;
+										  
+										  //Moving dead player if they are blocking doorways
+										  int xPos = p.getToken().getX();
+										  int yPos = p.getToken().getY();
+										  
+										  for (Room r : board.getRoom()) {
+											  for (Location l : r.getExits()) {
+												  if (xPos == l.getX() && yPos == l.getY()) {
+													  p.getToken().setXPos(r.getEntrances().get(0).getX());
+													  p.getToken().setYPos(r.getEntrances().get(0).getY());
+													  break;
+												  }
+											  }
+										  }
+										  
+										  for (Player player : players) {
+											  if (!player.haveLost()) {
+												  haveAllPlayersLost = false;
+											  }
+										  }
+										  if (!haveAllPlayersLost) {
+											  out.println("You are incorrect. You have lost the game but still have to refute suggestions if you can.\n");
+										  }
+										  else {
+											  gameOver = true;
+											  out.println("All players have the lost the game, the game is over");
+										  }
+									  }
+									  try {
+										Thread.sleep(3000);
+									} catch (InterruptedException e) {
+										e.printStackTrace();
+									}
+								  }
+							  }
+					  }
 			  }
 		  }
 	  }

@@ -21,6 +21,7 @@ public class CharacterToken extends Token
   private int yPos;
   private String characterName;
   private Room room;
+  private boolean movedBySuggestion;
 
   //------------------------
   // CONSTRUCTOR
@@ -33,11 +34,20 @@ public class CharacterToken extends Token
     yPos = startingLocation.getY();
     characterName = aCharacterName;
     room = null;
+    movedBySuggestion = false;
   }
 
   //------------------------
   // INTERFACE
   //------------------------
+  
+  public void setMoved(boolean setMove) {
+	  movedBySuggestion = setMove;
+  }
+  
+  public boolean getMoved() {
+	  return movedBySuggestion;
+  }
 
   public boolean setXPos(int aXPos)
   {
@@ -134,6 +144,10 @@ public String setRoom(Board board) {
 		return "You are now in the " + room.getName(); 
 	}
 	return "";
+}
+
+public void setRoom(Room r) {
+	room = r;
 }
 
 }

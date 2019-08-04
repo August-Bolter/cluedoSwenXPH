@@ -59,7 +59,7 @@ public class Board
 		}
 	}
 	for (int i = 0; i < weapons.size(); i++) {
-		randomOrder.get(i).setWeapon(weapons.get(i));
+		randomOrder.get(i).addWeapon(weapons.get(i));
 	}
 	
   }
@@ -98,7 +98,7 @@ private void registerWalls() {
 		if (loc[i][0].getType() == null) {
 			loc[i][0].setType(new Type("Wall"));
 		}
-		else if (loc[i][24].getType() == null) {
+		if (loc[i][24].getType() == null) {
 			loc[i][24].setType(new Type("Wall"));
 		}
 	}
@@ -106,7 +106,7 @@ private void registerWalls() {
 		if (loc[0][j].getType() == null) {
 			loc[0][j].setType(new Type("Wall"));
 		}
-		else if (loc[23][j].getType() == null) {
+		if (loc[23][j].getType() == null) {
 			loc[23][j].setType(new Type("Wall"));
 		}
 	}
@@ -186,7 +186,7 @@ public void createRoom() {
 	  else if(room.getName().equals("conservatory")) {
 	  	for(int j = 1; j < 6 ; j++) {
 	  		for(int i = 18 ; i < 24 ; i++) {
-	  			if ((i == 18 && j == 5) || (i == 24 && j == 5)) {
+	  			if ((i == 23 && j == 5)) {
 	  				loc[i][j].setType(new Type("Wall"));
 	  			}
 	  			else if (i == 18 && j == 5){
@@ -337,5 +337,46 @@ public void createRoom() {
   {
 	  return room;
   }
+
+public Location getClosestExit(Location l, Room room) {
+	// TODO Auto-generated method stub
+	Location closest = null;
+	int min = Integer.MAX_VALUE;
+	for (Location loc : room.getExits()) {
+		int distance = (( (loc.getX() - l.getX()) * (loc.getX() - l.getX()) ) * ( (loc.getY() - l.getY()) * (loc.getY() - l.getY()) ));
+		if (distance < min) {
+			min = distance;
+			closest = loc;
+		}
+	}
+	return closest;
+}
+
+public String getDirection(Location l, Location closestExit) {
+	// TODO Auto-generated method stub
+	String direction = "";
+	
+	//NORTH
+	if (l.getX()-closestExit.getX() == 0 && l.getY()-closestExit.getY() < 0) {
+		direction = "North";
+	}
+	
+	//SOUTH
+	else if (l.getX()-closestExit.getX() == 0 && l.getY()-closestExit.getY() > 0) {
+		direction = "South";
+	}
+	
+	//EAST
+	else if (l.getX()-closestExit.getX() > 0 && l.getY()-closestExit.getY() == 0) {
+		direction = "East";
+	}
+	
+	//WEST
+	else if (l.getX()-closestExit.getX() < 0 && l.getY()-closestExit.getY() == 0) {
+		direction = "West";
+	}
+	
+	return direction;
+}
 
 }

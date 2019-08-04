@@ -19,10 +19,11 @@ public class Type{
 		else if (s.equals("Wall")) {
 			this.r = loctype.WALL;
 		}
-		else if (s.equals("Room")) {
-			this.r = loctype.ROOM;
-		}
 		
+	}
+	
+	public loctype getLocType() {
+		return r;
 	}
 	
 	public Type(String s, String s1) {

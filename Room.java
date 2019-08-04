@@ -25,9 +25,11 @@ public class Room
   //Room Associations
   private List<Location> loc;
   private List<Location>doorwayLoc;
+  private List<Location> doorwayExit;
+  
   private Location centreLocation;
   private List<CharacterToken> playersInRoom;
-  private WeaponToken weapon;
+  private Set<WeaponToken> weapons;
   
 	//getter and setter methods for centreLocation  
   public Location getCentreLocation() {
@@ -49,23 +51,35 @@ public class Room
   {
     name = aName;
     doorwayLoc = new ArrayList<Location>();
+    doorwayExit = new ArrayList<Location>();
     loc = new ArrayList<Location>();
-    weapon = null;
+    weapons = new HashSet<WeaponToken>();
   }
   
-  public void setWeapon(WeaponToken w) {
-	  weapon = w;
+  public void addWeapon(WeaponToken w) {
+	  weapons.add(w);
   }
   
-  public WeaponToken getWeapon() {
-	  return weapon;
+  public void removeWeapon(WeaponToken w) {
+	  weapons.remove(w);
   }
   
+  public Set<WeaponToken> getWeapon() {
+	  return weapons;
+  }
+  
+  public List<Location> getExits() {
+	  return doorwayExit;
+  }
+  
+  //Set hallway entrances and exits
   public void setHallway() {
 	  if (name.equals("kitchen")) {
 		  Location l = new Location(4, 6);
 		  l.setType(new Type("Doorway", name));
 		  doorwayLoc.add(l);
+		  
+		  doorwayExit.add(new Location(4, 7));
 		  
 	  }
 	  else if (name.equals("ballroom")) {
@@ -85,11 +99,19 @@ public class Room
 		  l3.setType(new Type("Doorway", name));
 		  doorwayLoc.add(l3);
 		  
+		  
+		  doorwayExit.add(new Location(7, 5));
+		  doorwayExit.add(new Location(9, 8));
+		  doorwayExit.add(new Location(14, 8));
+		  doorwayExit.add(new Location(16, 5));
+		  
 	  }
 	  else if (name.equals("conservatory")) {
-		  Location l = new Location(4, 18);
+		  Location l = new Location(18, 4);
 		  l.setType(new Type("Doorway", name));
 		  doorwayLoc.add(l);
+		  
+		  doorwayExit.add(new Location(18, 5));
 	  }
 	  else if (name.equals("dining room")) {
 		  Location l = new Location(7, 12);
@@ -99,6 +121,9 @@ public class Room
 		  Location l1 = new Location(6, 15);
 		  l1.setType(new Type("Doorway", name));
 		  doorwayLoc.add(l1);
+		  
+		  doorwayExit.add(new Location(6, 16));
+		  doorwayExit.add(new Location(8, 12));
 	  }
 	  else if (name.equals("billard room")) {
 		  Location l = new Location(18, 9);
@@ -108,6 +133,9 @@ public class Room
 		  Location l1 = new Location(22, 12);
 		  l1.setType(new Type("Doorway", name));
 		  doorwayLoc.add(l1);
+		  
+		  doorwayExit.add(new Location(17, 9));
+		  doorwayExit.add(new Location(22, 13));
 	  }
 	  else if (name.equals("library")) {
 		  Location l = new Location(20, 14);
@@ -117,16 +145,23 @@ public class Room
 		  Location l1 = new Location(17, 16);
 		  l1.setType(new Type("Doorway", name));
 		  doorwayLoc.add(l1);
+		  
+		  doorwayExit.add(new Location(20, 13));
+		  doorwayExit.add(new Location(16, 16));
 	  }
 	  else if (name.equals("lounge")) {
 		  Location l = new Location(6, 19);
 		  l.setType(new Type("Doorway", name));
 		  doorwayLoc.add(l);
+		  
+		  doorwayExit.add(new Location(6, 18));
 	  }
 	  else if (name.equals("study")) {
 		  Location l = new Location(17, 21);
 		  l.setType(new Type("Doorway", name));
 		  doorwayLoc.add(l);
+		  
+		  doorwayExit.add(new Location(17, 20));
 	  }
 	  else {
 		  Location l = new Location(11, 18);
@@ -140,6 +175,10 @@ public class Room
 		  Location l2 = new Location(14, 20);
 		  l2.setType(new Type("Doorway", name));
 		  doorwayLoc.add(l2);
+		  
+		  doorwayExit.add(new Location(15, 20));
+		  doorwayExit.add(new Location(12, 17));
+		  doorwayExit.add(new Location(11, 17));
 	  }
   }
   
