@@ -757,7 +757,7 @@ public class Game {
 				List<Card> matchingCards = new ArrayList<Card>(); //For storing cards which match with the suggestion
 				for (Card c : player.getHand()) {
 					CardSet cs = suggestion.getSuggSet();
-					if (c == cs.getWeaponC() || c == cs.getCharacterC() || c == cs.getRoomC()) { //Do they match if so add them
+					if (c.getName().equalsIgnoreCase(cs.getWeaponC().getName()) || c.getName().equalsIgnoreCase(cs.getCharacterC().getName()) || c.getName().equalsIgnoreCase(cs.getRoomC().getName())) { //Do they match if so add them
 						matchingCards.add(c);
 					}
 				}
@@ -850,7 +850,7 @@ public class Game {
 			out.println("You have to be in " + roomName + " to make this suggestion. Enter Y if you would like to make another suggestion or if not press N.\n");
 			String answer = sc.next();
 			if (answer.equalsIgnoreCase("Y")) {
-				makeSuggestion(sc, p, playersTurn, out); //Reask the suggestion questions
+				return makeSuggestion(sc, p, playersTurn, out); //Reask the suggestion questions
 			}
 			return null; //They can choose to back out of the suggestion (in case they weren't aware of this rule), null is returned if this is the case.
 		}
