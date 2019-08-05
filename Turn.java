@@ -1,91 +1,109 @@
 package Java;
 
-/*PLEASE DO NOT EDIT THIS CODE*/
-/*This code was generated using the UMPLE 1.29.1.4597.b7ac3a910 modeling language!*/
+import java.util.ArrayList;
+import java.util.List;
+/**
+ * A single Turn covers all the actions an active player can do in one turn
+ * Roll dice, move, accuse and suggest
+ */
+public class Turn {
 
+	private Player player; //The player who is having this turn
+	private Suggestion suggestion; //Potentially a suggestion that could be made by the player
+	private Accusation accusation; //Potentially an accusation that could be made by the player
 
+	public Player getPlayer() {
+		return player;
+	}
 
-// line 69 "model.ump"
-// line 221 "model.ump"
-public class Turn
-{
+	public Turn(Player p) {
+		player = p;
+		suggestion = null;
+		accusation = null;
+	}
+	/**
+	 * adds two virtual dice rolling random values 
+	 * @return integer is a positive number between with min value of 7 and max value of 12 //diceTest
+	 */
+	public int rollDice(){
+		int dieRoll1 = (int)(Math.random() * 6); //Random value between 0 and 5
+		int dieRoll2 = (int)(Math.random() * 6); //Random value between 0 and 5
+		return ((dieRoll1+1) + (dieRoll2+1)); //Add 1 since we want a dice roll between 1 and 6 not 0 and 5
+	}
 
-  //------------------------
-  // MEMBER VARIABLES
-  //------------------------
+	/** Makes the suggestion using a given card set 
+	 * @param c    The CardSet to be stored as a suggestion
+	 * */
+	public void makeSuggestion(CardSet c){
+		suggestion = new Suggestion(c);
+	}
 
-  //Turn Associations
-  private Game game;
+	/** Returns said suggestion */
+	public Suggestion getSuggestion() {
+		return suggestion;
+	}
+	
+	/** Makes the accusation using a given card set */
+	public void makeAccusation(CardSet c){
+		accusation = new Accusation(c);
+	}
+	
+	/** Returns said accusation*/
+	public Accusation getAccusation() {
+		return accusation;
+	}
 
-  //------------------------
-  // CONSTRUCTOR
-  //------------------------
+	/** Moves the players character token 1 tile in the requested direction. Returns the coordinates of the token before moving so we can take note of this location
+	 * and ensure the player can't move onto that location in the same turn. 
+	 * @param direction	 A compass coordinate. Direction of location player wants to move 
+	 * @param board		 Will update location of player's Character Token on the board 
+	 * @return coords	 list contains former x and y position of the player - is returned and stored in a visitedLocations list 
+	 * @see Game line 758
+	 * */
+	public List<Integer> move(String direction, Board board){
+		//Getting coordinates of player
+		int x = player.getToken().getX();
+		int y = player.getToken().getY();
 
-  public Turn(Game aGame)
-  {
-    boolean didAddGame = setGame(aGame);
-    if (!didAddGame)
-    {
-      throw new RuntimeException("Unable to create turn due to game. See http://manual.umple.org?RE002ViolationofAssociationMultiplicity.html");
-    }
-  }
+		//Based on the direction provided it changes the x and/or y position of the players character token to move them to a different position
+		if (direction.equalsIgnoreCase("W")) { //WEST
+			player.getToken().setXPos(x-1);
+		}
+		else if (direction.equalsIgnoreCase("NW")) { //NORTHWEST
+			player.getToken().setXPos(x-1);
+			player.getToken().setYPos(y-1);
+		}
+		else if (direction.equalsIgnoreCase("N")) { //NORTH etc...
+			player.getToken().setYPos(y-1);
+		}
+		else if (direction.equalsIgnoreCase("NE")) {
+			player.getToken().setYPos(y-1);
+			player.getToken().setXPos(x+1);
+		}
+		else if (direction.equalsIgnoreCase("E")) {
+			player.getToken().setXPos(x+1);
+		}
+		else if (direction.equalsIgnoreCase("SE")) {
+			player.getToken().setXPos(x+1);
+			player.getToken().setYPos(y+1);
+		}
+		else if (direction.equalsIgnoreCase("S")) {
+			player.getToken().setYPos(y+1);
+		}
+		else if (direction.equalsIgnoreCase("SW")) {
+			player.getToken().setXPos(x-1);
+			player.getToken().setYPos(y+1);
+		}
+		
+		List<Integer> coords = new ArrayList<Integer>();
+		//Adding pre-movement coordinates
+		coords.add(x); 
+		coords.add(y);
+		
+		board.getLocation(x, y).setPlayer(null); //Removing the player from the old location
+		board.getLocation(player.getToken().getX(), player.getToken().getY()).setPlayer(player); //Adding the player to the new location
 
-  //------------------------
-  // INTERFACE
-  //------------------------
-  /* Code from template association_GetOne */
-  public Game getGame()
-  {
-    return game;
-  }
-  /* Code from template association_SetOneToMany */
-  public boolean setGame(Game aGame)
-  {
-    boolean wasSet = false;
-    if (aGame == null)
-    {
-      return wasSet;
-    }
-
-    Game existingGame = game;
-    game = aGame;
-    if (existingGame != null && !existingGame.equals(aGame))
-    {
-      existingGame.removeTurn(this);
-    }
-    game.addTurn(this);
-    wasSet = true;
-    return wasSet;
-  }
-
-  public void delete()
-  {
-    Game placeholderGame = game;
-    this.game = null;
-    if(placeholderGame != null)
-    {
-      placeholderGame.removeTurn(this);
-    }
-  }
-
-  // line 73 "model.ump"
-   public int rollDice(){
-	   return 1;
-  }
-
-  // line 76 "model.ump"
-   public Suggestion makeSuggestion(){
-	   return null;
-  }
-
-  // line 79 "model.ump"
-   public Accusation makeAccusation(){
-	   return null;
-  }
-
-  // line 83 "model.ump"
-   public void move(int steps, String direction){
-
-  }
+		return coords;
+	}
 
 }

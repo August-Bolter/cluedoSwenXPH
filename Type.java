@@ -1,31 +1,57 @@
 package Java;
 
-public class Type extends Location{
-	roomtype r;
-	
-	public enum roomtype {
-		FREESPACE,
-		WALL,
-		DOORWAY
+//This class represents the type a location could be
+public class Type{
+	private loctype r; //The type of location is represented using an enum
+	private String roomName; //If the type of location is a room than the name will also be stored
+
+	//The four different types
+	public enum loctype {
+		FREESPACE, //Hallways, starting locations, locations that players can always access
+		WALL, //Walls that are scattered around the board
+		DOORWAY, //Inside the room, but on the outer edge next to the entrance
+		ROOM //Inside the room and not the doorway
 	}
-	
-	public Type(Integer i , Integer j, String s) {
-		super(i, j);
-		// TODO Auto-generated constructor stub
-		if(s.equals("Free")) {
-			this.r = roomtype.FREESPACE;
+
+	//Since Free space and Wall aren't related to rooms they need a constructor without a room name parameter
+	public Type(String s) {
+
+		if(s.equalsIgnoreCase("Free space")) {
+			this.r = loctype.FREESPACE;
 		}
-		else if (s.equals("Wall")) {
-			this.r = roomtype.WALL;
+		else if (s.equalsIgnoreCase("Wall")) {
+			this.r = loctype.WALL;
 		}
-		else if (s.equals("Doorway")) {
-			this.r = roomtype.DOORWAY;
-		}
-		
+
 	}
-	
-	String getType() {
-		return this.r.toString();
+
+	/** Gets the type of location */
+	public loctype getLocType() {
+		return r;
+	}
+
+	public Type(String s, String s1) {
+		if (s.equalsIgnoreCase("Room")) {
+			r = loctype.ROOM;
+		}
+		else if (s.equalsIgnoreCase("Doorway")) {
+			r = loctype.DOORWAY;
+		}
+		roomName = s1;
+	}
+
+	/** Gets the name of type, for outputting throughout the game. Doorways have a different name value than normal room tiles */
+	public String getName() {
+		if (r == loctype.FREESPACE) {
+			return "Free space";
+		}
+		else if (r == loctype.WALL) {
+			return "Wall";
+		}
+		else if (r == loctype.DOORWAY) {
+			return roomName + " Doorway";
+		}
+		return roomName;
 	}
 
 }

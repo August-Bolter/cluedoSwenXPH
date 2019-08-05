@@ -1,483 +1,399 @@
 package Java;
 
-import java.awt.desktop.PrintFilesEvent;
-
-/*PLEASE DO NOT EDIT THIS CODE*/
-/*This code was generated using the UMPLE 1.29.1.4597.b7ac3a910 modeling language!*/
-
-
 import java.util.*;
 
-// line 16 "model.ump"
-// line 183 "model.ump"
-public class Board
-{
 
-	//------------------------
-	// MEMBER VARIABLES
-	//------------------------
+/**
+ * game board creating and storing rooms and locations
+ * creates rooms assigns locations, location types to the rooms.
+ * randomly distributes weapons to Rooms to be stored
+ * handles marking locations as a wall, hallway, entrance and exit types. 
+ * 
+ *@param aGame	Board is passed information to create a new Board from a Game
+ */
+public class Board {
+	
+	private Game game; //Game related to the board
+	private Location[][] loc; //Locations that make up the board
+	private List<Room> room; //rooms stored by the board
+	private List<WeaponToken> weapons; //weapons on the board
 
-	//Board Associations
-	private Game game;
-	private List<Location> loc;
-	//private List<Room> room;
-	private HashMap<String, Room>rooms;
-	private List<Location> hallwayLocations;
-
-	//------------------------
-	// CONSTRUCTOR
-	//------------------------
-
-	public Board(Game aGame)
-	{
-		if (aGame == null || aGame.getBoard() != null)
-			throw new RuntimeException("Unable to create Board due to aGame. See http://manual.umple.org?RE002ViolationofAssociationMultiplicity.html");
-		else {
-		}
+	public Board(Game aGame) {
 		game = aGame;
-		loc = new ArrayList<Location>();
-		rooms = new HashMap<String,Room>();
+		loc = new Location[24][25]; //Board is 24x25
+		room = new ArrayList<Room>();
+		weapons = new ArrayList<WeaponToken>();
+		createRoom(); //This splits the board into rooms
+		registerStartingLocations();
+		registerWalls();
+		findAndSetHallwayLocations();
+		registerRemainingLocations();
+		distributeWeaponTokens();
 
-		//generate rooms and generate locations
-		Room dining = new Room("dining room", this);
-		Room lounge = new Room("lounge", this);
-		Room kitchen = new Room("kitchen", this);
-		Room study = new Room("study", this);
-		Room hall = new Room("hall", this);
-		Room billiard = new Room("billiard room", this);
-		Room conservatory = new Room("conservatory", this);
-		Room ballroom = new Room("ballroom", this);
-		Room library = new Room("library", this);
-		Room cellar = new Room("cellar", this);		
+	}
 
-		this.rooms.put("dining",dining);
-		this.rooms.put("lounge",lounge);
-		this.rooms.put("kitchen",kitchen);
-		this.rooms.put("study",study);
-		this.rooms.put("hall",hall);
-		this.rooms.put("billiard",billiard);
-		this.rooms.put("conservatory",conservatory);
-		this.rooms.put("ballroom",ballroom);
-		this.rooms.put("library",library);
-		this.rooms.put("cellar",cellar);
+	/** Distribute the weapon tokens randomly onto the rooms */
+	private void distributeWeaponTokens() {
+		//Creating all the weapon tokens
+		weapons.add(new WeaponToken("Candlestick"));
+		weapons.add(new WeaponToken("Dagger"));
+		weapons.add(new WeaponToken("Lead Pipe"));
+		weapons.add(new WeaponToken("Revolver"));
+		weapons.add(new WeaponToken("Rope"));
+		weapons.add(new WeaponToken("Spanner"));
 
+		Set<Integer> pickedIndexes = new HashSet<Integer>(); //HashSet used for making sure a room doesn't get multiple weapons
+		List<Room> randomOrder = new ArrayList<Room>(); //Randomly assorted rooms
+
+		while (room.size() != pickedIndexes.size()) { //Keep going until all rooms picked
+			//Pick a random index and get the room from this index
+			int randomIndex = (int) ((Math.random()*room.size())); 
+			if (!pickedIndexes.contains(randomIndex)) {
+				pickedIndexes.add(randomIndex);
+				randomOrder.add(room.get(randomIndex));
+			}
+		}
+		//Distributing the weapons
+		for (int i = 0; i < weapons.size(); i++) {
+			randomOrder.get(i).addWeapon(weapons.get(i));
+		}
+
+	}
+
+	/** Registers (sets the type) of tiles that are unregistered. Will set them all to free space, since all the other types have been accounted for at this point. */
+	private void registerRemainingLocations() {
+
+		for (int j = 0; j < 25; j++) {
+			for (int i = 0; i < 24; i++) {
+				if (loc[i][j].getType() == null) {
+					loc[i][j].setType(new Type("Free space"));
+				}
+			}
+		}
+	}
+
+	/** Sets doorway locations for each room then marks/registers them on the board */
+	private void findAndSetHallwayLocations() {
+		// TODO Auto-generated method stub
+		for (Room r : room) {
+			r.setHallway(); //Setting them
+		}
+		for (Room r : room) {
+			for (Location l : r.getEntrances()) {
+				loc[l.getX()][l.getY()].setType(l.getType()); //Marking them
+			}
+		}
+	}
+
+	/** Gets a location on the board based on the coordinate given */
+	public Location getLocation(int x, int y) {
+		return loc[x][y];
+	}
+
+	/** Sets the border of the board to walls, unless they have already been registered (type set) e.g. starting locations, rooms */
+	private void registerWalls() {
+
+		for (int i = 0; i < 24; i++) {
+			//Top 
+			if (loc[i][0].getType() == null) {
+				loc[i][0].setType(new Type("Wall"));
+			}
+			//Bottom
+			if (loc[i][24].getType() == null) {
+				loc[i][24].setType(new Type("Wall"));
+			}
+		}
+		for (int j = 0; j < 25; j++) {
+			//Left
+			if (loc[0][j].getType() == null) {
+				loc[0][j].setType(new Type("Wall"));
+			}
+			//Right
+			if (loc[23][j].getType() == null) {
+				loc[23][j].setType(new Type("Wall"));
+			}
+		}
+		//Registering odd walls (walls not on the edge of the board)
+		loc[6][1].setType(new Type("Wall"));
+		loc[17][1].setType(new Type("Wall"));
+	}
+
+	/** Registers the starting location as free space */
+	private void registerStartingLocations() {
+			for (Location l : game.getStartingLocations()) {
+			loc[l.getX()][l.getY()].setType(new Type("Free space"));
+		}
+
+	}
+
+	/** Creates and adds all the rooms and assigns locations to each room */
+	public void createRoom() {
+		//Creating the rooms
+		Room dining = new Room("Dining Room");
+		Room lounge = new Room("Lounge");
+		Room kitchen = new Room("Kitchen");
+		Room study = new Room("Study");
+		Room hall = new Room("Hall");
+		Room billiard = new Room("Billiard Room");
+		Room conservatory = new Room("Conservatory");
+		Room ballroom = new Room("Ballroom");
+		Room library = new Room("Library");	
 		
-		//add 600 locations into the locations field
-		for(int i = 0 ; i <= 24 ; i++) {
-			for(int j = 0; j <= 25; j++) {
+		//Adding the rooms
+		this.room.add(dining);
+		this.room.add(lounge);
+		this.room.add(kitchen);
+		this.room.add(study);
+		this.room.add(hall);
+		this.room.add(billiard);
+		this.room.add(conservatory);
+		this.room.add(ballroom);
+		this.room.add(library);
+
+		//Adding all the locations to board
+		for(int j = 0 ; j < 25; j++) {
+			for(int i = 0; i < 24; i++) {
 				Location newLocation = new Location(i, j);
-				loc.add(newLocation);
+				loc[i][j] = newLocation;
 			}
 		}
 
-		//set locations as part of a room
-		for(Room room : this.rooms.values()) {
-			if(room.getName().equals("kitchen")) {
-				for(int i = 1 ; i < 6 ; i++) {
-					for(int j = 0 ; j <6 ; j++) {
-						room.addLoc(new Location(i, j));
-						//Location.setRoom?
-						//this.getRoom(index)
-					}
-				}
-			}
-			else if(room.getName().equals("ballroom")) {
-				for(int i = 2; i < 7 ; i++) {
-					for(int j = 8 ; j < 16 ; j++) {
-						room.addLoc(new Location(i, j));
-					}
-				}
-			}
-
-			else if(room.getName().equals("conservatory")) {
-				for(int i = 1; i < 6 ; i++) {
-					for(int j = 18 ; j < 24 ; j++) {
-
-						if(i==5 && j==18) {
-							break;
-						}
-						room.addLoc(new Location(i, j));
-					}
-				}
-			}
-
-			else if(room.getName().equals("dining room")) {
-				for(int i = 9; i < 16 ; i++) {
-					for(int j = 0 ; j < 8 ; j++) {			
-						if(i==9 && (j == 5 || j == 6 || j==7)) { //rooms to not be added
-							break;
+		//Assigning rooms board locations, based on the room (since the rooms come in different sizes).
+		for (Room room : this.room) {
+			if(room.getName().equalsIgnoreCase("Kitchen")) {
+				for(int j = 1 ; j < 7; j++) {
+					for(int i = 0 ; i < 6 ; i++) {
+						//Because the rooms aren't perfect grids, we have to account for locations that are inside the grid but not inside the room		
+						if (i == 0 && j == 6) {
+							loc[i][j].setType(new Type("Wall")); //These locations could be a wall
 						}
 						else {
-							room.addLoc(new Location(i, j));
+							room.addLoc(loc[i][j]);
+							loc[i][j].setType(new Type("Room", room.getName()));
 						}
 					}
 				}
 			}
-
-			else if(room.getName().equals("library")) {
-				for(int i = 14; i < 19 ; i++) {
-					for(int j = 17 ; j < 24 ; j++) {
-						if(i== 14 && j == 17) {
-							break;
-						}
-						else if(i==18 && j == 17) {
-							break;
+			else if(room.getName().equalsIgnoreCase("Ballroom")) {
+				for(int j = 1; j < 8; j++) {
+					for(int i = 8; i < 16; i++) {
+						if ((i == 8 && j == 1) || (i == 9 && j == 1) || (i == 14 && j == 1) || (i == 15 && j == 1)) {
+							loc[i][j].setType(new Type("Free space")); //Or a free space
 						}
 						else {
-							room.addLoc(new Location(i, j));
+							room.addLoc(loc[i][j]);
+							loc[i][j].setType(new Type("Room", room.getName()));
 						}
 					}
 				}
 			}
-			
-			else if(room.getName().equals("lounge")) {
-				for(int i = 19; i < 24 ; i++) {
-					for(int j = 1 ; j < 6	 ; j++) {
-						room.addLoc(new Location(i, j));
+
+			else if(room.getName().equalsIgnoreCase("Conservatory")) {
+				for(int j = 1; j < 6 ; j++) {
+					for(int i = 18 ; i < 24 ; i++) {
+						if ((i == 23 && j == 5)) {
+							loc[i][j].setType(new Type("Wall"));
+						}
+						else if (i == 18 && j == 5){
+							loc[i][j].setType(new Type("Free space"));
+						}
+						else {
+							room.addLoc(loc[i][j]);
+							loc[i][j].setType(new Type("Room", room.getName()));
+						}
 					}
 				}
 			}
-			
-			else if(room.getName().equals("hall")) {
-				for(int i = 18; i < 24 ; i++) {
-					for(int j = 9 ; j < 15	 ; j++) {
-						room.addLoc(new Location(i, j));
+
+			else if(room.getName().equalsIgnoreCase("Dining room")) {
+				for(int j = 9; j < 16; j++) {
+					for(int i = 0 ; i < 8; i++) {
+						if ((i == 5 && j == 9) || (i == 6 && j == 9) || (i == 7 && j == 9)) {
+							loc[i][j].setType(new Type("Free space"));
+						}
+						else {
+							room.addLoc(loc[i][j]);
+							loc[i][j].setType(new Type("Room", room.getName()));
+						}
 					}
 				}
 			}
-			
-			else if(room.getName().equals("study")) {
-				for(int i = 21; i < 24 ; i++) {
-					for(int j = 17 ; j < 24	 ; j++) {
-						room.addLoc(new Location(i, j));
+
+			else if(room.getName().equalsIgnoreCase("Billard room")) {
+				for(int j = 8; j < 13; j++) {
+					for(int i = 18; i < 24; i++) {
+						room.addLoc(loc[i][j]);
+						loc[i][j].setType(new Type("Room", room.getName()));
 					}
+				}
+			}
+
+			else if(room.getName().equalsIgnoreCase("Library")) {
+				for(int j = 14; j < 19; j++) {
+					for(int i = 17; i < 24; i++) {
+						if ((i == 17 && j == 15) || (i == 17 && j == 19) || (i == 23 && j == 15) || (i == 23 && j == 19)) {
+							loc[i][j].setType(new Type("Wall"));
+						}
+						else if ((i == 17 && j == 15) || (i == 17 && j ==19)){
+							loc[i][j].setType(new Type("Free space"));
+						}
+						else {
+							room.addLoc(loc[i][j]);
+							loc[i][j].setType(new Type("Room", room.getName()));
+						}
+					}	
+				}
+			}
+
+			else if(room.getName().equalsIgnoreCase("Study")) {
+				for(int j = 21; j < 25; j++) {
+					for(int i = 17; i < 24; i++) {
+						if ((i == 17 && j == 24)) {
+							loc[i][j].setType(new Type("Wall"));
+						}	
+						else {
+							room.addLoc(loc[i][j]);
+							loc[i][j].setType(new Type("Room", room.getName()));
+						}
+					}	
+				}
+			}
+			else if(room.getName().equalsIgnoreCase("Hall")) {
+				for(int j = 18; j < 25; j++) {
+					for(int i = 9; i < 15; i++) {
+						room.addLoc(loc[i][j]);
+						loc[i][j].setType(new Type("Room", room.getName()));
+					}	
+				}
+			}
+
+			else if(room.getName().equalsIgnoreCase("Lounge")) {
+				for(int j = 19; j < 25; j++) {
+					for(int i = 0; i < 7; i++) {
+						if ((i == 6 && j == 24)) {
+							loc[i][j].setType(new Type("Wall"));
+						}
+						else {
+							room.addLoc(loc[i][j]);
+							loc[i][j].setType(new Type("Room", room.getName()));
+						}
+					}	
 				}
 			}
 		}
-				
+
 	}
 
-	public Board(CardSet aSolutionForGame, Card aDeckForGame)
-	{
-		game = new Game(aSolutionForGame, aDeckForGame, this);
-		loc = new ArrayList<Location>();
-	
-	}
-
-	//interface
-	
-	public List<Location>getSurroundingLocations(Location l){
-		
-		List<Location> surroundingLocations = new ArrayList<>();
-		
-		//west
-		int westLocationX = l.getX() - 1 ;
-		int westLocationY = l.getY();
-		Location westLocation = new Location(westLocationX, westLocationY);
-		surroundingLocations.add(westLocation);
-		
-		
-		//northwest
-		int nwLocationX = l.getX() - 1 ;
-		int nwLocationY = l.getY()+1;
-		Location nwLocation = new Location(nwLocationX, nwLocationY);
-		surroundingLocations.add(nwLocation);
-
-		//north
-		int nLocationX = l.getX() ;
-		int nLocationY = l.getY() + 1;
-		Location nLocation = new Location(nLocationX, nLocationY);
-		surroundingLocations.add(nLocation);
-		
-		//northeast
-		int neLocationX = l.getX() + 1 ;
-		int neLocationY = l.getY() +1 ;
-		Location neLocation = new Location(neLocationX, neLocationY);
-		surroundingLocations.add(neLocation);
-		
-		
-		//east
-		int eLocationX = l.getX() + 1 ;
-		int eLocationY = l.getY() ;
-		Location eLocation = new Location(eLocationX, eLocationY);
-		surroundingLocations.add(eLocation);
-		
-		
-		//southeast
-		int seLocationX = l.getX() + 1 ;
-		int seLocationY = l.getY() - 1;
-		Location seLocation = new Location(seLocationX, seLocationY);
-		surroundingLocations.add(seLocation);
-		
-		//south
-		int sLocationX = l.getX() ;
-		int sLocationY = l.getY() -1;
-		Location sLocation = new Location(sLocationX, sLocationY);
-		surroundingLocations.add(sLocation);
-		
-		//southwest
-		int swLocationX = l.getX() - 1 ;
-		int swLocationY = l.getY();
-		Location swLocation = new Location(swLocationX, swLocationY);
-		surroundingLocations.add(swLocation);
-		
-		return surroundingLocations;
-	}
-	
-	public void printSurroundingLocations(List<Location> l) {
-		System.out.println("Surrounding locations: west - northwest - north - northeast - east - southeast - south - southwest");
-		for(int i = 0 ; i < l.size() ; i++) {
-			Location l1 = l.get(i);
-			String locString  = l1.toString();
-			System.out.println(locString + " " );
+	/** Gets the surrounding locations of a location based on coordinates */
+	public List<Location> getSurroundingLocations(int x, int y){
+		List<Location> locations = new ArrayList<Location>();
+		if (x != 0) { //So we don't get index out of bounds errors
+			locations.add(loc[x-1][y]); //WEST
 		}
+		else {locations.add(null);} //null represents a "nothing" tile (tile outside the board area)
+
+		if (x != 0 && y != 0) {
+			locations.add(loc[x-1][y-1]); //NORTHWEST
+		}
+		else {locations.add(null);}
+
+		if (y != 0) {
+			locations.add(loc[x][y-1]); //NORTH
+		}
+		else {locations.add(null);}
+
+		if (y != 0 && x != 23) {
+			locations.add(loc[x+1][y-1]); //NORTHEAST
+		}
+		else {locations.add(null);}
+
+		if (x != 23) {
+			locations.add(loc[x+1][y]); //EAST
+		}
+		else {locations.add(null);}
+
+		if (x != 23 && y != 24) {
+			locations.add(loc[x+1][y+1]); //SOUTHEAST
+		}
+		else {locations.add(null);}
+
+		if (y != 24) {
+			locations.add(loc[x][y+1]); //SOUTH
+		}
+		else {locations.add(null);}
+
+		if (y != 24 && x != 0) {
+			locations.add(loc[x-1][y+1]); //SOUTHWEST
+		}
+		else {locations.add(null);}
+
+		return locations;
 	}
 
-	public Game getGame()
-	{
-		return game;
-	}
-	/* Code from template association_GetMany */
-	public Location getLoc(int index)
-	{
-		Location aLoc = loc.get(index);
-		return aLoc;
-	}
-
-	public List<Location> getLoc()
-	{
-		List<Location> newLoc = Collections.unmodifiableList(loc);
-		return newLoc;
+	/** Gets a room based on the room name */
+	public Room getRoom(String name) {
+		for (Room r : room) {
+			if (r.getName().equalsIgnoreCase(name)) {
+				return r;
+			}
+		}
+		return null;
 	}
 
-	public int numberOfLoc()
+	/** Gets all the rooms */
+	public List<Room> getRoom()
 	{
-		int number = loc.size();
-		return number;
-	}
-
-	public boolean hasLoc()
-	{
-		boolean has = loc.size() > 0;
-		return has;
-	}
-
-	public int indexOfLoc(Location aLoc)
-	{
-		int index = loc.indexOf(aLoc);
-		return index;
-	}
-	/* Code from template association_GetMany */
-	public Room getRoom(int index)
-	{
-		Room aRoom = rooms.get(index);
-		return aRoom;
-	}
-	
-	public Room getRoom(String s) {
-		Room room = this.rooms.get(s);
 		return room;
 	}
 
-	public List<Room> getRoom()
-	{
-		List<Room> newRoom = Collections.unmodifiableList(rooms);
-		return newRoom;
+	/** Gets the closest exit of a room from a doorway
+	 * @param doorway  	location of doorway
+	 * @param room		room contains information on exit locations
+	 *  */
+	public Location getClosestExit(Location doorway, Room room) {
+		// TODO Auto-generated method stub
+		Location closest = null;
+		int min = Integer.MAX_VALUE;
+		//find closest exit
+		for (Location loc : room.getExits()) { //Going through the room exits
+			int distanceToExit = (( (loc.getX() - doorway.getX()) * (loc.getX() - doorway.getX()) ) * ( (loc.getY() - doorway.getY()) * (loc.getY() - doorway.getY()) ));
+			if (distanceToExit < min) {
+				min = distanceToExit;
+				closest = loc;				
+			}
+		}
+		return closest; //location that is closest 
 	}
 
-	public int numberOfRoom()
-	{
-		int number = rooms.size();
-		return number;
-	}
+	/** Gets the direction you would have to move in to go from a room exit to a room entrance. 
+	 * @param l				current location
+	 * @param closestExit	the location of an exit
+	 * */
+	public String getDirection(Location l, Location closestExit) {
+		// TODO Auto-generated method stub
+		String direction = "";
 
-	public boolean hasRoom()
-	{
-		boolean has = rooms.size() > 0;
-		return has;
-	}
-
-	public int indexOfRoom(Room aRoom)
-	{
-		int index = rooms.indexOf(aRoom);
-		return index;
-	}
-	/* Code from template association_MinimumNumberOfMethod */
-	public static int minimumNumberOfLoc()
-	{
-		return 0;
-	}
-	/* Code from template association_AddManyToOne */
-	public Location addLoc(int aX, int aY, Room aRoom)
-	{
-		return new Location(aX, aY, this, aRoom);
-	}
-
-	public boolean addLoc(Location aLoc)
-	{
-		boolean wasAdded = false;
-		if (loc.contains(aLoc)) { return false; }
-		Board existingBo = aLoc.getBo();
-		boolean isNewBo = existingBo != null && !this.equals(existingBo);
-		if (isNewBo)
-		{
-			aLoc.setBo(this);
-		}
-		else
-		{
-			loc.add(aLoc);
-		}
-		wasAdded = true;
-		return wasAdded;
-	}
-
-	public boolean removeLoc(Location aLoc)
-	{
-		boolean wasRemoved = false;
-		//Unable to remove aLoc, as it must always have a bo
-		if (!this.equals(aLoc.getBo()))
-		{
-			loc.remove(aLoc);
-			wasRemoved = true;
-		}
-		return wasRemoved;
-	}
-	/* Code from template association_AddIndexControlFunctions */
-	public boolean addLocAt(Location aLoc, int index)
-	{
-		boolean wasAdded = false;
-		if(addLoc(aLoc))
-		{
-			if(index < 0 ) { index = 0; }
-			if(index > numberOfLoc()) { index = numberOfLoc() - 1; }
-			loc.remove(aLoc);
-			loc.add(index, aLoc);
-			wasAdded = true;
-		}
-		return wasAdded;
-	}
-
-	public boolean addOrMoveLocAt(Location aLoc, int index)
-	{
-		boolean wasAdded = false;
-		if(loc.contains(aLoc))
-		{
-			if(index < 0 ) { index = 0; }
-			if(index > numberOfLoc()) { index = numberOfLoc() - 1; }
-			loc.remove(aLoc);
-			loc.add(index, aLoc);
-			wasAdded = true;
-		}
-		else
-		{
-			wasAdded = addLocAt(aLoc, index);
-		}
-		return wasAdded;
-	}
-	/* Code from template association_IsNumberOfValidMethod */
-	public boolean isNumberOfRoomValid()
-	{
-		boolean isValid = numberOfRoom() >= minimumNumberOfRoom() && numberOfRoom() <= maximumNumberOfRoom();
-		return isValid;
-	}
-	/* Code from template association_RequiredNumberOfMethod */
-	public static int requiredNumberOfRoom()
-	{
-		return 9;
-	}
-	/* Code from template association_MinimumNumberOfMethod */
-	public static int minimumNumberOfRoom()
-	{
-		return 9;
-	}
-	/* Code from template association_MaximumNumberOfMethod */
-	public static int maximumNumberOfRoom()
-	{
-		return 9;
-	}
-	/* Code from template association_AddMNToOnlyOne */
-	public Room addRoom(String aName)
-	{
-		if (numberOfRoom() >= maximumNumberOfRoom())
-		{
-			return null;
-		}
-		else
-		{
-			return new Room(aName, this);
-		}
-	}
-
-	public boolean addRoom(Room aRoom)
-	{
-		boolean wasAdded = false;
-		if (rooms.contains(aRoom)) { return false; }
-		if (numberOfRoom() >= maximumNumberOfRoom())
-		{
-			return wasAdded;
+		//NORTH
+		if (l.getX()-closestExit.getX() == 0 && l.getY()-closestExit.getY() < 0) {
+			direction = "North";
 		}
 
-		Board existingBo = aRoom.getBo();
-		boolean isNewBo = existingBo != null && !this.equals(existingBo);
-
-		if (isNewBo && existingBo.numberOfRoom() <= minimumNumberOfRoom())
-		{
-			return wasAdded;
+		//SOUTH
+		else if (l.getX()-closestExit.getX() == 0 && l.getY()-closestExit.getY() > 0) {
+			direction = "South";
 		}
 
-		if (isNewBo)
-		{
-			aRoom.setBo(this);
-		}
-		else
-		{
-			rooms.put(aRoom);
-		}
-		wasAdded = true;
-		return wasAdded;
-	}
-
-	public boolean removeRoom(Room aRoom)
-	{
-		boolean wasRemoved = false;
-		//Unable to remove aRoom, as it must always have a bo
-		if (this.equals(aRoom.getBo()))
-		{
-			return wasRemoved;
+		//EAST
+		else if (l.getX()-closestExit.getX() > 0 && l.getY()-closestExit.getY() == 0) {
+			direction = "East";
 		}
 
-		//bo already at minimum (9)
-		if (numberOfRoom() <= minimumNumberOfRoom())
-		{
-			return wasRemoved;
-		}
-		rooms.remove(aRoom);
-		wasRemoved = true;
-		return wasRemoved;
-	}
-
-	public void delete()
-	{
-		Game existingGame = game;
-		game = null;
-		if (existingGame != null)
-		{
-			existingGame.delete();
-		}
-		while (loc.size() > 0)
-		{
-			Location aLoc = loc.get(loc.size() - 1);
-			aLoc.delete();
-			loc.remove(aLoc);
+		//WEST
+		else if (l.getX()-closestExit.getX() < 0 && l.getY()-closestExit.getY() == 0) {
+			direction = "West";
 		}
 
-		while (rooms.size() > 0)
-		{
-			Room aRoom = rooms.get(rooms.size() - 1);
-			aRoom.delete();
-			rooms.remove(aRoom);
-		}
-
+		return direction;
 	}
 
 }
