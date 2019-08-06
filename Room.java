@@ -2,6 +2,10 @@ package Java;
 
 import java.util.*;
 
+/**
+ * Rooms are areas on the board that players have to enter to make a suggestion
+ * Doorway is the location that room is entered by players. Weapons and tokens are stored/put inside Locations 
+ */
 public class Room {
 
 	private String name;
@@ -13,6 +17,10 @@ public class Room {
 	private List<CharacterToken> playersInRoom; //The character tokens (that the players controls) that are in the room
 	private Set<WeaponToken> weapons; //The weapon tokens in the room
 
+	/**
+	 *Room constructor initializes room fields
+	 *@param aName
+	 */
 	public Room(String aName) {
 		name = aName;
 		doorwayLoc = new ArrayList<Location>();
@@ -21,7 +29,7 @@ public class Room {
 		weapons = new HashSet<WeaponToken>();
 	}
 
-	//Used when moving a weapon token from one room to another through suggestion
+	//Used when moving a weapon token from one room to another through suggestion and when weapons are added to rooms for the first time 
 	public void addWeapon(WeaponToken w) {
 		weapons.add(w);
 	}
@@ -64,7 +72,7 @@ public class Room {
 		loc.add(aLoc);
 	}
 
-	/** Based on the room this method adds the doorway entrances/exits to the room */
+	/** Based on the room this method assigns the doorway entrances/exits to the room */
 	public void setHallway() {
 		if (name.equalsIgnoreCase("Kitchen")) {
 			//Entrances

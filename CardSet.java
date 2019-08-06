@@ -12,16 +12,18 @@ public class CardSet {
 		characterC = aCharacterC;
 		roomC = aRoomC;
 	}
-
-	public WeaponCard getWeaponC() {
+	
+	//gets the Weapon card in the CardSet
+	public WeaponCard getWeaponCard() {
 		return weaponC;
 	}
-
-	public CharacterCard getCharacterC() {
+	 //gets the CharacterCard in the CardSet
+	public CharacterCard getCharacterCard() {
 		return characterC;
 	}
-
-	public RoomCard getRoomC() {
+	
+	//gets the RoomCard in the CardSet
+	public RoomCard getRoomCard() {
 		return roomC;
 	}
 }

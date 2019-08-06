@@ -2,13 +2,22 @@ package Java;
 
 import java.util.*;
 
+/**
+ * game board creating and storing rooms and locations
+ * creates rooms assigns locations, location types to the rooms.
+ * randomly distributes weapons to Rooms to be stored
+ * handles marking locations as a wall, hallway, entrance and exit types. 
+ * 
+ *@param aGame	Board is passed information to create a new Board from a Game
+ */
+=======
 //A class representing the game board and all the operations and information that goes along with it
 public class Board {
 	
 	private Game game; //Game related to the board
 	private Location[][] loc; //Locations that make up the board
-	private List<Room> room;
-	private List<WeaponToken> weapons;
+	private List<Room> room; //rooms stored by the board
+	private List<WeaponToken> weapons; //weapons on the board
 
 	public Board(Game aGame) {
 		game = aGame;
@@ -34,7 +43,8 @@ public class Board {
 		weapons.add(new WeaponToken("Rope"));
 		weapons.add(new WeaponToken("Spanner"));
 
-		Set<Integer> pickedIndexes = new HashSet<Integer>(); //Used for making sure a room doesn't get multiple weapons
+		Set<Integer> pickedIndexes = new HashSet<Integer>(); //HashSet used for making sure a room doesn't get multiple weapons
+    
 		List<Room> randomOrder = new ArrayList<Room>(); //Randomly assorted rooms
 
 		while (room.size() != pickedIndexes.size()) { //Keep going until all rooms picked
@@ -339,22 +349,31 @@ public class Board {
 		return room;
 	}
 
+	/** Gets the closest exit of a room from a doorway
+	 * @param doorway  	location of doorway
+	 * @param room		room contains information on exit locations
+	 *  */
+=======
 	/** Gets the closest exit of a room from a doorway */
 	public Location getClosestExit(Location doorway, Room room) {
 		// TODO Auto-generated method stub
 		Location closest = null;
 		int min = Integer.MAX_VALUE;
-		for (Location loc : room.getExits()) { //Going through the room exists
-			int distance = (( (loc.getX() - doorway.getX()) * (loc.getX() - doorway.getX()) ) * ( (loc.getY() - doorway.getY()) * (loc.getY() - doorway.getY()) ));
-			if (distance < min) {
-				min = distance;
-				closest = loc;
+		//find closest exit
+		for (Location loc : room.getExits()) { //Going through the room exits
+			int distanceToExit = (( (loc.getX() - doorway.getX()) * (loc.getX() - doorway.getX()) ) * ( (loc.getY() - doorway.getY()) * (loc.getY() - doorway.getY()) ));
+			if (distanceToExit < min) {
+				min = distanceToExit;
+				closest = loc;				
 			}
 		}
-		return closest;
+		return closest; //location that is closest 
 	}
 
-	/** Gets the direction you would have to move in to go from a room exit to a room entrance. */
+	/** Gets the direction you would have to move in to go from a room exit to a room entrance. 
+	 * @param l				current location
+	 * @param closestExit	the location of an exit
+	 * */
 	public String getDirection(Location l, Location closestExit) {
 		// TODO Auto-generated method stub
 		String direction = "";

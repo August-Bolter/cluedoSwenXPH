@@ -3,6 +3,10 @@ package Java;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * A single Turn covers all the actions an active player can do in one turn
+ * Roll dice, move, accuse and suggest
+ */
 public class Turn {
 
 	private Player player; //The player who is having this turn
@@ -19,13 +23,19 @@ public class Turn {
 		accusation = null;
 	}
 
+	/**
+	 * adds two virtual dice rolling random values 
+	 * @return integer is a positive number between with min value of 7 and max value of 12 //diceTest
+	 */
 	public int rollDice(){
 		int dieRoll1 = (int)(Math.random() * 6); //Random value between 0 and 5
 		int dieRoll2 = (int)(Math.random() * 6); //Random value between 0 and 5
 		return ((dieRoll1+1) + (dieRoll2+1)); //Add 1 since we want a dice roll between 1 and 6 not 0 and 5
 	}
 
-	/** Makes the suggestion using a given card set */
+	/** Makes the suggestion using a given card set 
+	 * @param c    The CardSet to be stored as a suggestion
+	 * */
 	public void makeSuggestion(CardSet c){
 		suggestion = new Suggestion(c);
 	}
@@ -35,16 +45,23 @@ public class Turn {
 		return suggestion;
 	}
 	
+	/** Makes the accusation using a given card set */
 	public void makeAccusation(CardSet c){
 		accusation = new Accusation(c);
 	}
-
+	
+	/** Returns said accusation*/
 	public Accusation getAccusation() {
 		return accusation;
 	}
 
 	/** Moves the players character token 1 tile in the requested direction. Returns the coordinates of the token before moving so we can take note of this location
-	 * and ensure the player can't move onto that location in the same turn. */
+	 * and ensure the player can't move onto that location in the same turn. 
+	 * @param direction	 A compass coordinate. Direction of location player wants to move 
+	 * @param board		 Will update location of player's Character Token on the board 
+	 * @return coords	 list contains former x and y position of the player - is returned and stored in a visitedLocations list 
+	 * @see Game line 758
+	 * */
 	public List<Integer> move(String direction, Board board){
 		//Getting coordinates of player
 		int x = player.getToken().getX();

@@ -1,6 +1,10 @@
 package Java;
 
-//A weapon token, placed in a random room at the start and moved around different rooms as the game plays out because of suggestions.
+/**
+ * Weapon tokens 
+ * Weapons are placed in a random room during game setup
+ * Able to be moved into rooms after a suggestion
+ */
 public class WeaponToken extends Token {
 
 	private String weaponName;
