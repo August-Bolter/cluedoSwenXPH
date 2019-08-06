@@ -221,9 +221,9 @@ public class Game {
 		}
 
 		//Removing solution from deck
-		unshuffledDeck.remove(solution.getCharacterCard());
-		unshuffledDeck.remove(solution.getWeaponCard());
-		unshuffledDeck.remove(solution.getRoomCard());
+		unshuffledDeck.remove(solution.getCharacterC());
+		unshuffledDeck.remove(solution.getWeaponC());
+		unshuffledDeck.remove(solution.getRoomC());
 
 		//Initializing shuffled deck
 		deck = new ArrayList<Card>();
