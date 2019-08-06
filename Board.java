@@ -10,8 +10,6 @@ import java.util.*;
  * 
  *@param aGame	Board is passed information to create a new Board from a Game
  */
-=======
-//A class representing the game board and all the operations and information that goes along with it
 public class Board {
 	
 	private Game game; //Game related to the board
@@ -353,8 +351,6 @@ public class Board {
 	 * @param doorway  	location of doorway
 	 * @param room		room contains information on exit locations
 	 *  */
-=======
-	/** Gets the closest exit of a room from a doorway */
 	public Location getClosestExit(Location doorway, Room room) {
 		// TODO Auto-generated method stub
 		Location closest = null;
