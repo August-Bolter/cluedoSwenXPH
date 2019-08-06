@@ -2,8 +2,6 @@ package Java;
 
 import java.util.List;
 
-
-//A class representing the character token the player controls (or the ones that aren't assigned to any players but are still placed in rooms if they are mentioned in suggestions)
 /**
  * Character tokens are the player's game entity on the Board
  * Able to change location as player inputs moves
