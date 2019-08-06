@@ -6,7 +6,6 @@ package Java;
  * Cards inside the accSet can be returned to be compared to the solution in Game	
  *  @see Game solution
  */
-=======
 
 public class Accusation {
 
