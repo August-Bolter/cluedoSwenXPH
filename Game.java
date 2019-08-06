@@ -395,7 +395,7 @@ public class Game {
 							//An unfortunate rare possibility for the player
 							if (doorways.size() == 0) {
 								out.println("There are no possible doorways to exit out of. Press any key to finish your turn");
-								String answer = sc.nextLine();
+								sc.nextLine();
 								endingEarly = true;;
 							}
 
