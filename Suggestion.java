@@ -26,12 +26,12 @@ public class Suggestion {
 	 * @param game			game contains the characterTokens
 	 * */
 	public void moveTokens(List<Player> players, Board board, Game game) {
-		Room room = board.getRoom(suggSet.getRoomCard().getName()); //Gets the actual room based on the room card used in the suggestion
+		Room room = board.getRoom(suggSet.getRoomC().getName()); //Gets the actual room based on the room card used in the suggestion
 		WeaponToken suggestWeapon = null;
 		
 		/** Finds the weapon token based on the weapon card used in the suggestion */
 		for (WeaponToken w : room.getWeapon()) {
-			if (w.getName().equalsIgnoreCase(suggSet.getWeaponCard().getName())) { //Do the names match
+			if (w.getName().equalsIgnoreCase(suggSet.getWeaponC().getName())) { //Do the names match
 				suggestWeapon = w;
 			}
 		}
@@ -51,7 +51,7 @@ public class Suggestion {
 		/** Finds player to move into suggested room unless already in the room*/
 		boolean activeCharacter= false; //Is the suggestion character a character token controlled by a player or an inactive character token (no player is controlling it)
 		for (Player p : players) {
-			if (p.getToken().getName().equalsIgnoreCase(suggSet.getCharacterCard().getName())) { //If the names match
+			if (p.getToken().getName().equalsIgnoreCase(suggSet.getCharacterC().getName())) { //If the names match
 				if (p.getToken().getRoom() != room) { //and we aren't in the room
 					p.getToken().setRoom(room); //Then change the room of the player
 					p.getToken().setMoved(true); //Since the player was moved by a suggestion, they will have different options on their next turn
