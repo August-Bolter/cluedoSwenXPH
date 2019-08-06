@@ -2,6 +2,7 @@ package Java;
 
 import java.util.ArrayList;
 import java.util.List;
+
 /**
  * A single Turn covers all the actions an active player can do in one turn
  * Roll dice, move, accuse and suggest
@@ -21,6 +22,7 @@ public class Turn {
 		suggestion = null;
 		accusation = null;
 	}
+
 	/**
 	 * adds two virtual dice rolling random values 
 	 * @return integer is a positive number between with min value of 7 and max value of 12 //diceTest

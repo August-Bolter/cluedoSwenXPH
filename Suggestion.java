@@ -1,6 +1,7 @@
 package Java;
 
 import java.util.List;
+
 /**
  * Suggestion uses the set being played during a suggestion and handles moving suspected Character tokens and Weapon tokens into the room of the suggestion. 
  * 
@@ -61,7 +62,7 @@ public class Suggestion {
 		}
 		if (!activeCharacter) { //If character is inactive
 			for (CharacterToken c : game.getCharacterTokens()) { //Look through inactive and active characters
-				if (c.getName().equalsIgnoreCase(suggSet.getCharacterCard().getName())) {
+				if (c.getName().equalsIgnoreCase(suggSet.getCharacterC().getName())) {
 					c.setRoom(room); //Set the room of the inactive character
 				}
 			}

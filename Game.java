@@ -4,6 +4,7 @@ package Java;
 import java.io.PrintStream;
 import java.util.*;
 import Java.Type.loctype;
+
 /**
  * Game creates a board, defines and sets up player numbers, tokens and deals cards. Controls simulation of cleudo
  * Contains entry main method 
@@ -52,6 +53,7 @@ public class Game {
 	public List<Location> getStartingLocations() {
 		return startingLocations;
 	}
+  
 	//gets list of characterTokens
 	public List<CharacterToken> getCharacterTokens() {
 		return characterTokens;
@@ -262,7 +264,7 @@ public class Game {
 
 	}
 
-	/** Deals out the shuffled deck to the players's hands */
+	/** Deals out the shuffled deck to the players's hand */
 	private void deal() {
 		List<Card> tempDeck = new ArrayList<Card>(); //Because we want to keep the original deck intact
 		
@@ -635,7 +637,7 @@ public class Game {
 								out.println(inRoom); //This prints that the player has entered the room
 								steps = 0; //A player cannot move once they enter a room
 							}
-							steps--; //player's steps decreases
+							steps--;
 						}
 						
 						//Asks the player what they would like to do next
@@ -673,7 +675,7 @@ public class Game {
 								Accusation playersAccusation = makeAccusation(sc, p, playersTurn, out); 
 								CardSet accSet = playersAccusation.getAccSet();
 								//Checks if accusation matches solution
-								if (accSet.getCharacterCard() == solution.getCharacterCard() && accSet.getRoomCard() == solution.getRoomCard() && accSet.getWeaponCard() == accSet.getWeaponCard()) {
+								if (accSet.getCharacterC() == solution.getCharacterC() && accSet.getRoomC() == solution.getRoomC() && accSet.getWeaponC() == accSet.getWeaponC()) {
 									gameOver = true; //Game is now over
 									out.println("You are right! You have won the game!");
 								}
@@ -762,11 +764,11 @@ public class Game {
 		if (locInts.contains(temp)) {
 			//Then moving the token and store the location they used to be in so they can't revisit that location in the same turn.
 			List<Integer> coords = playersTurn.move(direction, board);
-			visitedLocations.add(board.getLocation(coords.get(0), coords.get(1))); 
+			visitedLocations.add(board.getLocation(coords.get(0), coords.get(1)));
 		}
 
 		else {
-			out.println("You cannot move there."); //user input was not valid, move is looped								
+			out.println("You cannot move there.");
 			move(sc, out, playersTurn, visitedLocations, locInts, directionOutput);
 		}
 
@@ -786,7 +788,7 @@ public class Game {
 				List<Card> matchingCards = new ArrayList<Card>(); //For storing cards which match with the suggestion
 				for (Card c : player.getHand()) {
 					CardSet cs = suggestion.getSuggSet();
-					if (c == cs.getWeaponCard() || c == cs.getCharacterCard() || c == cs.getRoomCard()) { //Do they match if so add them
+					if (c.getName().equalsIgnoreCase(cs.getWeaponC().getName()) || c.getName().equalsIgnoreCase(cs.getCharacterC().getName()) || c.getName().equalsIgnoreCase(cs.getRoomC().getName())) { //Do they match if so add them
 						matchingCards.add(c);
 					}
 				}
@@ -876,6 +878,7 @@ public class Game {
 		//Asking about the room
 		out.println("Enter the name of the room you think the murder has taken place in.\n");
 		sc.nextLine();
+    
 		boolean validAnswer = false; // boolean condition used for checking valid room names
 		while (!validAnswer) {
 			roomName = sc.nextLine();
@@ -887,13 +890,13 @@ public class Game {
 				out.println("Please enter in a valid room name (Kitchen, Dining Room, Ball Room, Conservatory, Billard Room, Library, Study, Hall, Lounge)."); //if player has not entered a valid room they are asked again to enter a room
 			}
 		}//end of while loop to check for a room
-		
+
 		//Checking suggestion is valid by checking player is actually in the room they mentioned
 		if (r != p.getToken().getRoom()) {
 			out.println("You have to be in " + roomName + " to make this suggestion. Enter Y if you would like to make another suggestion or if not press N.\n");
 			String answer = sc.next();
 			if (answer.equalsIgnoreCase("Y")) {
-				makeSuggestion(sc, p, playersTurn, out); //Reask the suggestion questions
+				return makeSuggestion(sc, p, playersTurn, out); //Reask the suggestion questions
 			}
 			return null; //They can choose to back out of the suggestion (in case they weren't aware of this rule), null is returned if this is the case.
 		}
@@ -1001,9 +1004,8 @@ public class Game {
 			}
 		}
 
-		//Boundary testing needed
-		playersTurn.makeAccusation(new CardSet(weaponCard, characterCard, roomCard));  //makes accusation for the Turn
-		Accusation playersAccusation = playersTurn.getAccusation();  //retrieves accusation from Turn field
+		playersTurn.makeAccusation(new CardSet(weaponCard, characterCard, roomCard));
+		Accusation playersAccusation = playersTurn.getAccusation();  
 		return playersAccusation;
 	}
 

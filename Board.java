@@ -2,7 +2,6 @@ package Java;
 
 import java.util.*;
 
-
 /**
  * game board creating and storing rooms and locations
  * creates rooms assigns locations, location types to the rooms.
@@ -11,6 +10,8 @@ import java.util.*;
  * 
  *@param aGame	Board is passed information to create a new Board from a Game
  */
+=======
+//A class representing the game board and all the operations and information that goes along with it
 public class Board {
 	
 	private Game game; //Game related to the board
@@ -43,6 +44,7 @@ public class Board {
 		weapons.add(new WeaponToken("Spanner"));
 
 		Set<Integer> pickedIndexes = new HashSet<Integer>(); //HashSet used for making sure a room doesn't get multiple weapons
+    
 		List<Room> randomOrder = new ArrayList<Room>(); //Randomly assorted rooms
 
 		while (room.size() != pickedIndexes.size()) { //Keep going until all rooms picked
@@ -120,7 +122,8 @@ public class Board {
 
 	/** Registers the starting location as free space */
 	private void registerStartingLocations() {
-			for (Location l : game.getStartingLocations()) {
+		// TODO Auto-generated method stub
+		for (Location l : game.getStartingLocations()) {
 			loc[l.getX()][l.getY()].setType(new Type("Free space"));
 		}
 
@@ -350,6 +353,8 @@ public class Board {
 	 * @param doorway  	location of doorway
 	 * @param room		room contains information on exit locations
 	 *  */
+=======
+	/** Gets the closest exit of a room from a doorway */
 	public Location getClosestExit(Location doorway, Room room) {
 		// TODO Auto-generated method stub
 		Location closest = null;

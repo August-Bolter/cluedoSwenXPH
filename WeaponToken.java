@@ -1,6 +1,5 @@
 package Java;
 
-
 /**
  * Weapon tokens 
  * Weapons are placed in a random room during game setup

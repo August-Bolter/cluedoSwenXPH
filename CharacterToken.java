@@ -57,6 +57,7 @@ public class CharacterToken extends Token {
 	public int getX(){
 		return xPos;
 	}
+  
 	/** gets character's y position on the board */
 	public int getY(){
 		return yPos;
@@ -88,7 +89,8 @@ public class CharacterToken extends Token {
 		if (!foundRoom) {
 			room = null;
 		}
-		 /** room has been entered  */
+
+		/** room has been entered  */
 		if (room != null) { 
 			return "You are now in the " + room.getName(); 
 		}
