@@ -3,20 +3,14 @@ package Java;
 //Importing needed libraries
 import java.io.PrintStream;
 import java.util.*;
+
+import javax.swing.JFrame;
+
 import Java.Type.loctype;
 
-/**
- * Game creates a board, defines and sets up player numbers, tokens and deals cards. Controls simulation of cleudo
- * Contains entry main method 
- * Game is played through a loop of Turns
- * parameters begin as null and are set by the game during setup
- * @param aSolution		
- * @param aDeck			
- * @param aBoard 		
- */
 public class Game {
-
-	private CardSet solution; //The solution of the game, whoever makes an accusation matching all 3 cards inside this wins the game
+	
+	private CardSet solution; //The solution of the game, whoever makes an accusation matching this wins the game
 	private List<Card> deck; //A deck of all the cards
  
 	private List<Player> players; //The players in the game
@@ -28,6 +22,9 @@ public class Game {
 	private boolean endingEarly; //True if someones turn has ended earlier than it usually does, false otherwise
 	private Room cantEnter; //True if a player can't enter a room because they have already been in it before
 
+	//part 2
+	private Gui gui;
+	
 	public Game(CardSet aSolution, List<Card> aDeck, Board aBoard) {
 		//Initializing variables
 		solution = aSolution;
@@ -39,9 +36,16 @@ public class Game {
 		cantEnter = null;
 		characterTokens = new ArrayList<CharacterToken>();
 		board = aBoard;
+		gui = new Gui();
+		gui.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		gui.setSize(250,500);
+		gui.setVisible(true);
 		try {
 			Scanner s = new Scanner(System.in); //We need this to read the users input
 			settingUp(s); //Setting up the game
+			System.out.println(solution.getCharacterC().getName());
+			System.out.println(solution.getRoomC().getName());
+			System.out.println(solution.getWeaponC().getName());
 			playTurns(s); //Playing the game
 		}
 		catch(Exception e) {
@@ -49,19 +53,15 @@ public class Game {
 		}
 	}
 
-	//gets list of starting locations
+	//Various getters
 	public List<Location> getStartingLocations() {
 		return startingLocations;
 	}
-  
-	//gets list of characterTokens
+
 	public List<CharacterToken> getCharacterTokens() {
 		return characterTokens;
 	}
 
-	/**
-	 * Entry method for the Cleudo Game program
-	 */
 	public static void main(String arg[]) {
 		Game cluedo = new Game(null, null, null); //All set to null since the game is what defines these parameters, so they are set later on.
 	}
@@ -79,6 +79,7 @@ public class Game {
 		startingLocations.add(new Location(14, 0));
 
 		System.out.println("How many players do you want? (Enter a number between 1 and 6)\n");
+		gui.setText("How many players do you want? (Enter a number between 1 and 6)\n");
 		
 		/* You will see this boolean variable, while loop setup very frequently in this class. Pretty much every time a user could put in an invalid input 
 		 * especially if it would throw an exception. This code setup means that instead of exceptions being thrown the user is asked the question again
@@ -221,9 +222,9 @@ public class Game {
 		}
 
 		//Removing solution from deck
-		unshuffledDeck.remove(solution.getCharacterCard());
-		unshuffledDeck.remove(solution.getWeaponCard());
-		unshuffledDeck.remove(solution.getRoomCard());
+		unshuffledDeck.remove(solution.getCharacterC());
+		unshuffledDeck.remove(solution.getWeaponC());
+		unshuffledDeck.remove(solution.getRoomC());
 
 		//Initializing shuffled deck
 		deck = new ArrayList<Card>();
@@ -264,7 +265,7 @@ public class Game {
 
 	}
 
-	/** Deals out the shuffled deck to the players's hand */
+	/** Deals out the shuffled deck to the players. */
 	private void deal() {
 		List<Card> tempDeck = new ArrayList<Card>(); //Because we want to keep the original deck intact
 		
@@ -272,8 +273,6 @@ public class Game {
 		for (Card c : deck) {
 			tempDeck.add(c);
 		}
-		
-		//Empties the temporary deck dealing 1 card to each Player's hand
 		while (tempDeck.size() > 0) { //Go until we have dealt out all the cards
 			for (Player p : players) { //Deal a card to each player
 				//To avoid index out of bounds error
@@ -309,11 +308,7 @@ public class Game {
 		return gameOver;
 	}
 
-	/** A large method which performs all the possible actions a turn could have like moving in and out of rooms and around the board, making suggestions etc. 
-	 * Variables of Game are updated as playTurns executes
-	 * gameOver() - checks player has won the game
-	 * cantEnter - Room field that resets to null but updates when a player has exited a room. Room can't be entered again on the same turn
-	 * **/
+	/** A large method which performs all the possible actions a turn could have like moving in and out of rooms and around the board, making suggestions etc. */
 	private void playTurns(Scanner sc) {
 		PrintStream out = System.out; //Using a PrintStream now so everything is printed out in the correct order
 		while(!gameOver()) { //Keep going until the game is over
@@ -734,14 +729,7 @@ public class Game {
 	}
 
 	/** A recursive method which checks if the input the user put in was valid i.e. matches the possible directions their token can take and if so moves them
-	 * otherwise it is called recursively to re-ask the question (this was before I wrote the small while loop algorithm) 
-	 * @param sc
-	 * @param out
-	 * @param playersTurn
-	 * @param visitedLocations
-	 * @param locInts
-	 * @param directionOutputs
-	 * */
+	 * otherwise it is called recursively to re-ask the question (this was before I wrote the small while loop algorithm) */
 	private void move(Scanner sc, PrintStream out, Turn playersTurn, List<Location> visitedLocations, List<Integer> locInts, String directionOutput) {
 		// TODO Auto-generated method stub
 		out.println(directionOutput);
@@ -775,12 +763,7 @@ public class Game {
 	}
 
 	/** Forces the other players to refute the suggestion if they can. If they have multiple possible cards to refute with it gives them the choice of which one
-	 * to show. 
-	 * @param suggestion
-	 * @param p
-	 * @param out
-	 * @param sc
-	 * */
+	 * to show. */
 	private void refuting(Suggestion suggestion, Player p, PrintStream out, Scanner sc) {
 		//Go through each player excluding current turns player
 		for (Player player : players) {
@@ -848,10 +831,7 @@ public class Game {
 		}
 	}
 	
-	/** Finds any card in the gamethat matches the String passed and returns that card 
-	 * @param cardName
-	 * @return Card
-	 * */
+	/** Finds any card in the gamethat matches the String passed and returns that card */
 	private Card findCard(String cardName) {
 		for (Card c : allCards) {
 			if (c.getName().equalsIgnoreCase(cardName)) {
@@ -861,36 +841,24 @@ public class Game {
 		return null;
 	}
 
-	/** Make a suggestion, make sure its a valid suggestion 
-	 * Player has to be in the room they are using in the suggestion
-	 * 
-	 * A suggestion is returned after validating all the conditions 
-	 * @param sc		Java scanner object that reads user input from System in
-	 * @param p					Player that has made the suggestion
-	 * @param playersTurn		Turn associated with the suggestion
-	 * @param out			
-	 * @see Game line 638
-	 * @return  suggestion 
-	 * */
+	/** Make a suggestion, make sure its a valid suggestion (i.e. they are in the room they are using in the suggestion) and return it. */
 	private Suggestion makeSuggestion(Scanner sc, Player p, Turn playersTurn, PrintStream out) {
 		Room r = null;
 		String roomName = "";
 		//Asking about the room
 		out.println("Enter the name of the room you think the murder has taken place in.\n");
 		sc.nextLine();
-    
-		boolean validAnswer = false; // boolean condition used for checking valid room names
+		boolean validAnswer = false;
 		while (!validAnswer) {
 			roomName = sc.nextLine();
 			r = board.getRoom(roomName);
-			if (r != null) {   //player has suggested a valid room
+			if (r != null) {
 				validAnswer = true;
 			}
 			else {
-				out.println("Please enter in a valid room name (Kitchen, Dining Room, Ball Room, Conservatory, Billard Room, Library, Study, Hall, Lounge)."); //if player has not entered a valid room they are asked again to enter a room
+				out.println("Please enter in a valid room name (Kitchen, Dining Room, Ball Room, Conservatory, Billard Room, Library, Study, Hall, Lounge).");
 			}
-		}//end of while loop to check for a room
-
+		}
 		//Checking suggestion is valid by checking player is actually in the room they mentioned
 		if (r != p.getToken().getRoom()) {
 			out.println("You have to be in " + roomName + " to make this suggestion. Enter Y if you would like to make another suggestion or if not press N.\n");
@@ -945,13 +913,7 @@ public class Game {
 		}
 	}
 
-	/** Makes an accusation, makes sure the cards are in the game and returns the accusation 
-	 * @param sc			
-	 * @param p						the player that has made the accusation
-	 * @param playersTurn			Turn associated with the accusation
-	 * @param out
-	 * @return accusation
-	 * */
+	/** Makes an accusation, makes sure the cards are in the game and returns the accusation */
 	private Accusation makeAccusation(Scanner sc, Player p, Turn playersTurn, PrintStream out) {
 
 		WeaponCard weaponCard = null;
@@ -1004,6 +966,7 @@ public class Game {
 			}
 		}
 
+		//Boundary testing needed
 		playersTurn.makeAccusation(new CardSet(weaponCard, characterCard, roomCard));
 		Accusation playersAccusation = playersTurn.getAccusation();  
 		return playersAccusation;
