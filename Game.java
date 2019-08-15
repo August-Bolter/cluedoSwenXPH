@@ -1,4 +1,4 @@
-package Java;
+package code;
 
 //Importing needed libraries
 import java.io.PrintStream;
@@ -6,7 +6,7 @@ import java.util.*;
 
 import javax.swing.JFrame;
 
-import Java.Type.loctype;
+import code.Type.loctype;
 
 public class Game {
 	
@@ -16,7 +16,7 @@ public class Game {
 	private List<Player> players; //The players in the game
 	private Board board; //The cluedo board
 	private boolean gameOver; //true if the game is over, false otherwise
-	private List<Location> startingLocations; //The starting locations of all the character tokens
+	private Map<String, Location> startingLocations; //The starting locations of all the character tokens
 	private List<Card> allCards; //All the cards including the cards in the solution
 	private List<CharacterToken> characterTokens; //All the character tokens in cluedo
 	private boolean endingEarly; //True if someones turn has ended earlier than it usually does, false otherwise
@@ -36,16 +36,13 @@ public class Game {
 		cantEnter = null;
 		characterTokens = new ArrayList<CharacterToken>();
 		board = aBoard;
-		gui = new Gui();
+		gui = new Gui(this);
 		gui.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		gui.setSize(250,500);
 		gui.setVisible(true);
 		try {
 			Scanner s = new Scanner(System.in); //We need this to read the users input
 			settingUp(s); //Setting up the game
-			System.out.println(solution.getCharacterC().getName());
-			System.out.println(solution.getRoomC().getName());
-			System.out.println(solution.getWeaponC().getName());
 			playTurns(s); //Playing the game
 		}
 		catch(Exception e) {
@@ -54,32 +51,42 @@ public class Game {
 	}
 
 	//Various getters
-	public List<Location> getStartingLocations() {
-		return startingLocations;
+	public Collection<Location> getStartingLocations() {
+		return startingLocations.values();
 	}
 
 	public List<CharacterToken> getCharacterTokens() {
 		return characterTokens;
 	}
+	
+	public Gui getGui() {
+		return gui;
+	}
 
 	public static void main(String arg[]) {
 		Game cluedo = new Game(null, null, null); //All set to null since the game is what defines these parameters, so they are set later on.
+	}
+	
+	public void addPlayers(ArrayList<String> playerNames, ArrayList<String> characterNames) {
+		for (int i = 0; i < characterNames.size(); i++) {
+			Player newPlayer = new Player(new HashSet<Card>(), new CharacterToken(startingLocations.get(characterNames.get(i)), characterNames.get(i)), playerNames.get(i));
+			players.add(newPlayer);
+		}
 	}
 
 	/** Sets up everything so the game can start, like shuffling cards, dealing cards, setting character tokens, number of players etc. */
 	private void settingUp(Scanner scanner){
 
 		//Storing startingLocations of the character tokens
-		startingLocations = new ArrayList<Location>();
-		startingLocations.add(new Location(23, 6));
-		startingLocations.add(new Location(0, 17));
-		startingLocations.add(new Location(7, 24));
-		startingLocations.add(new Location(23, 19));
-		startingLocations.add(new Location(9, 0));
-		startingLocations.add(new Location(14, 0));
+		startingLocations = new HashMap<String, Location>();
+		startingLocations.put("Mrs. Peacock", new Location(23, 6));
+		startingLocations.put("Colonel Mustard", new Location(0, 17));
+		startingLocations.put("Miss Scarlett", new Location(7, 24));
+		startingLocations.put("Professor Plum", new Location(23, 19));
+		startingLocations.put("Mrs. White", new Location(9, 0));
+		startingLocations.put("Mr. Green", new Location(14, 0));
 
-		System.out.println("How many players do you want? (Enter a number between 1 and 6)\n");
-		gui.setText("How many players do you want? (Enter a number between 1 and 6)\n");
+		gui.setLabel("How many players do you want?");
 		
 		/* You will see this boolean variable, while loop setup very frequently in this class. Pretty much every time a user could put in an invalid input 
 		 * especially if it would throw an exception. This code setup means that instead of exceptions being thrown the user is asked the question again
@@ -100,64 +107,10 @@ public class Game {
 				System.out.println("Please enter a number between 1 and 6");
 			}
 		}
-
-		int count = playerNumbers; //How many players we are going to have to set up
 		
-		ArrayList<String> characterNames  = new ArrayList<String>(); //All the possible character names the character tokens can have
-		characterNames.add("Mrs. Peacock");
-		characterNames.add("Colonel Mustard");
-		characterNames.add("Miss Scarlett");
-		characterNames.add("Professor Plum");
-		characterNames.add("Mrs. White");
-		characterNames.add("Mr. Green");
-
-		while( count > 0) { // ask user to choose from list of characters. Create character tokens and add into a token arraylist
-			//playerNumbers+count since we want to start from 1 to the number of players
-			System.out.printf("Player %d please select a character using their respective number: \n\n", (1+playerNumbers-count)); 
-
-			for(int i = 0 ; i < characterNames.size() ; i++) {
-
-				System.out.println(i + " : " + characterNames.get(i));
-			}
-
-			isValid = false;
-
-			int playerSelection = -1; //Again to have default value as an invalid input
-			while (!isValid) {
-				String playerSelectionString = scanner.next();
-				if (playerSelectionString.matches("\\d+")) {
-					playerSelection = Integer.parseInt(playerSelectionString);
-				}
-				//Have they picked a valid number
-				if (playerSelection < characterNames.size() && playerSelection >= 0) {
-					isValid = true;
-				}
-				else {
-					System.out.println("Please enter a valid number.");
-				}
-			}
-
-			//Getting character name
-			String charName = characterNames.get(playerSelection);
-
-			//Getting starting location based on character name
-			Location startLocation = getStartingLocation(playerSelection);
-
-			//Creating and adding character token
-			CharacterToken playerToken = new CharacterToken(startLocation, charName);
-			characterTokens.add(playerToken);
-
-			characterNames.remove(playerSelection); //Remove character from possible choices
-			startingLocations.remove(startLocation); //Remove starting location from possible choices
-
-			//Create and add a new player with the character token they chose
-			Player newPlayer = new Player(new HashSet<Card>(), playerToken);
-			players.add(newPlayer);
-			count--;
-		}
-
+		//NOT FUNCTIONAL
 		//Creating other character tokens so they can be moved into rooms when suggestions are made (even if they aren't controlled by a player)
-		for (String s : characterNames) {
+		for (String s : startingLocations.keySet()) {
 			characterTokens.add(new CharacterToken(new Location(-1, -1), s)); //Location set to -1, -1 because these tokens aren't on the board
 		}
 
@@ -248,8 +201,6 @@ public class Game {
 			board.getLocation(p.getToken().getX(), p.getToken().getY()).setPlayer(p);
 		}
 		
-		deal(); //Deal the cards
-		
 		//Print out information to let the player know whats going on
 		System.out.println("The cards have been shuffled");
 		System.out.println("The cards have been dealt out");
@@ -266,7 +217,7 @@ public class Game {
 	}
 
 	/** Deals out the shuffled deck to the players. */
-	private void deal() {
+	public void deal() {
 		List<Card> tempDeck = new ArrayList<Card>(); //Because we want to keep the original deck intact
 		
 		//Copying the deck
