@@ -1,28 +1,25 @@
-package Java;
+package code;
 
 import java.util.Set;
-/**
- * Player represents a user, their hand and state throughout the game - created in Game setup
- * Player has a gameCharacter token able to be placed on locations on the board
- * player stores current state of the player - when a player "loses" they cannot make a Turn (roll dice,move,accuse,suggest) for the rest of the game
- **/
-public class Player {
-	private Set<Card> hand; //The players hand is a set of Cards that have been dealt to the player
-	private CharacterToken token; //The token they control
-	private boolean haveLost; //Have they "lost" the game by making a wrong accusation? 
 
-	/**
-	 * Constructor for a player. Created at Game setup
-	 * @param aHand	
-	 * @param aToken
-	 */
-	public Player(Set<Card> aHand, CharacterToken aToken) {
+public class Player {
+	private Set<Card> hand; //The players hand
+	private CharacterToken token; //The token they control
+	private boolean haveLost; //Have they "lost" the game by making a wrong accusation?
+	private String name;
+
+	public Player(Set<Card> aHand, CharacterToken aToken, String playerName) {
+		name = playerName;
 		hand = aHand;
 		token = aToken;
-		haveLost = false; //because a Player loses after making an incorrect accusation
+		haveLost = false;
+	}
+	
+	public String getName() {
+		return name;
 	}
 
-	//Returns if the player has lost 
+	//Returns if the player has lost
 	public boolean haveLost() {
 		return haveLost;
 	}
@@ -37,10 +34,7 @@ public class Player {
 		return hand;
 	}
 
-	/**Adds a card to the players hand 
-	 * Always called at startup by Game
-	 * @param c     Card to be added to hand
-	 */
+	//Adds a card to the players hand
 	public void addCard(Card c) {
 		hand.add(c);
 	}

@@ -16,6 +16,7 @@ public class Game {
 	private List<Player> players; //The players in the game
 	private Board board; //The cluedo board
 	private boolean gameOver; //true if the game is over, false otherwise
+	private Player currentPlayer;
 	private Map<String, Location> startingLocations; //The starting locations of all the character tokens
 	private List<Card> allCards; //All the cards including the cards in the solution
 	private List<CharacterToken> characterTokens; //All the character tokens in cluedo
@@ -38,7 +39,7 @@ public class Game {
 		board = aBoard;
 		gui = new Gui(this);
 		gui.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		gui.setSize(250,500);
+		gui.setSize(600,300);
 		gui.setVisible(true);
 		try {
 			Scanner s = new Scanner(System.in); //We need this to read the users input
@@ -59,8 +60,24 @@ public class Game {
 		return characterTokens;
 	}
 	
+	public Player getCurrentPlayer() {
+		return currentPlayer;
+	}
+	
+	public void setCurrentPlayer(Player p) {
+		currentPlayer = p;
+	}
+	
+	public List<Player> getPlayers() {
+		return players;
+	}
+	
 	public Gui getGui() {
 		return gui;
+	}
+	
+	public Board getBoard() {
+		return board;
 	}
 
 	public static void main(String arg[]) {
@@ -91,22 +108,6 @@ public class Game {
 		/* You will see this boolean variable, while loop setup very frequently in this class. Pretty much every time a user could put in an invalid input 
 		 * especially if it would throw an exception. This code setup means that instead of exceptions being thrown the user is asked the question again
 		 * as I feel this is more user friendly and will lead to a better experience. */
-		
-		int playerNumbers = 0; //Set to 0 so that if the user puts in something other than a number it will ask them to try again
-		boolean isValid = false; //Did the user give a valid answer
-		while (!isValid) { //Keep going until the user gives a valid answer
-			String playerNumbersAsString = scanner.next();
-			if (playerNumbersAsString.matches("\\d+")) { //Check that they entered an actual number without parsing the text
-				playerNumbers = Integer.parseInt(playerNumbersAsString); //Parse the text since we know its a number
-			}
-			//Since playerNumbers initial value is 0, this means if the input wasn't a number or wasn't a valid number then ask again
-			if (playerNumbers <= 6 && playerNumbers >= 1) {
-				isValid = true; //Otherwise break out of while loop
-			}
-			else {
-				System.out.println("Please enter a number between 1 and 6");
-			}
-		}
 		
 		//NOT FUNCTIONAL
 		//Creating other character tokens so they can be moved into rooms when suggestions are made (even if they aren't controlled by a player)
