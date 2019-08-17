@@ -14,6 +14,7 @@ public class Game {
 	private List<Card> deck; //A deck of all the cards
 	private List<WeaponCard> weaponCards;
 	private List<CharacterCard> characterCards;
+	private List<RoomCard> roomCards;
  
 	private List<Player> players; //The players in the game
 	private Board board; //The cluedo board
@@ -36,6 +37,7 @@ public class Game {
 		deck = aDeck;
 		weaponCards = new ArrayList<WeaponCard>();
 		characterCards = new ArrayList<CharacterCard>();
+		roomCards = new ArrayList<RoomCard>();
 		players = new ArrayList<Player>();
 		gameOver = false;
 		allCards = new ArrayList<Card>();
@@ -94,12 +96,20 @@ public class Game {
 		return board;
 	}
 	
+	public CardSet getSolution() {
+		return solution;
+	}
+	
 	public List<WeaponCard> getWeaponCards() {
 		return weaponCards;
 	}
 	
 	public List<CharacterCard> getCharacterCards() {
 		return characterCards;
+	}
+	
+	public List<RoomCard> getRoomCards() {
+		return roomCards;
 	}
 
 	public static void main(String arg[]) {
@@ -111,6 +121,8 @@ public class Game {
 			Player newPlayer = new Player(new HashSet<Card>(), new CharacterToken(startingLocations.get(characterNames.get(i)), characterNames.get(i)), playerNames.get(i));
 			players.add(newPlayer);
 		}
+		currentPlayersTurn = new Turn(players.get(0), this);
+		canMove = false;
 	}
 
 	/** Sets up everything so the game can start, like shuffling cards, dealing cards, setting character tokens, number of players etc. */
@@ -166,7 +178,6 @@ public class Game {
 		CharacterCard mrGreen = new CharacterCard("Mr. Green");
 		CharacterCard professorPlum = new CharacterCard("Professor Plum");
 		
-		
 		characterCards.add(mrsPeacock);
 		characterCards.add(missScarlett);
 		characterCards.add(colonelMustard);
@@ -187,15 +198,20 @@ public class Game {
 		RoomCard lounge = new RoomCard("Lounge");
 		RoomCard hall = new RoomCard("Hall");
 		RoomCard study = new RoomCard("Study");
-		unshuffledDeck.add(kitchen);
-		unshuffledDeck.add(ballRoom);
-		unshuffledDeck.add(conservatory);
-		unshuffledDeck.add(diningRoom);
-		unshuffledDeck.add(billardRoom);
-		unshuffledDeck.add(library);
-		unshuffledDeck.add(lounge);
-		unshuffledDeck.add(hall);
-		unshuffledDeck.add(study);
+		
+		
+		roomCards.add(kitchen);
+		roomCards.add(ballRoom);
+		roomCards.add(conservatory);
+		roomCards.add(diningRoom);
+		roomCards.add(billardRoom);
+		roomCards.add(library);
+		roomCards.add(lounge);
+		roomCards.add(hall);
+		roomCards.add(study);
+		for (RoomCard c : roomCards) {
+			unshuffledDeck.add(new RoomCard(c.getName()));
+		}
 
 		//Picking solution
 		solution = pickSolution(unshuffledDeck); 
@@ -348,7 +364,7 @@ public class Game {
 							//If they want to make a suggestion
 							if (answer.equalsIgnoreCase("S")) {
 								Suggestion suggestion = makeSuggestion(sc, p, playersTurn, out);
-								suggestion.moveTokens(players, board, this);
+								//suggestion.moveTokens(players, board, this);
 								if (suggestion != null) {
 									refuting(suggestion, p, out, sc);
 								}
@@ -488,7 +504,7 @@ public class Game {
 									}
 								}
 								cantEnter = p.getToken().getRoom(); //Since we just exited the room we can't go back in it on the same turn
-								p.getToken().setRoom(board); //This sets the players room to null since they are no longer in a room
+								//p.getToken().setRoom(board); //This sets the players room to null since they are no longer in a room
 								board.getLocation(p.getToken().getX(), p.getToken().getY()).setPlayer(p); //Set the doorway exit location player to the current player.
 							}
 						}
@@ -610,9 +626,9 @@ public class Game {
 							}
 							directionOutput = directionOutput + "?\n";
 							move(sc, out, playersTurn, visitedLocations, locInts, directionOutput); //Moving the token
-							String inRoom = p.getToken().setRoom(board); //Checking if we are now in a room and if so then setting the token to the room
+							//String inRoom = p.getToken().setRoom(board); //Checking if we are now in a room and if so then setting the token to the room
 							if (p.getToken().inRoomCheck()) {
-								out.println(inRoom); //This prints that the player has entered the room
+								//out.println(inRoom); //This prints that the player has entered the room
 								steps = 0; //A player cannot move once they enter a room
 							}
 							steps--;
@@ -628,7 +644,7 @@ public class Game {
 							//If they chose suggestion
 							if (answer.equalsIgnoreCase("S")) {
 								Suggestion suggestion = makeSuggestion(sc, p, playersTurn, out);
-								suggestion.moveTokens(players, board, this);
+								//suggestion.moveTokens(players, board, this);
 								if (suggestion != null) { //If they decide to actually make the suggestion
  									refuting(suggestion, p, out, sc); //Then force other players to refute
 								}
@@ -956,7 +972,6 @@ public class Game {
 	}
 
 	public ArrayList<Integer> rollDice() {
-		currentPlayersTurn = new Turn(getCurrentPlayer(), this); //Once the player has rolled the dice their turn has started
 		canMove = true;
 		ArrayList<Integer> diceRolls = new ArrayList<Integer>();
 		diceRolls = currentPlayersTurn.rollDice();
@@ -966,15 +981,95 @@ public class Game {
 
 	public boolean move(int index) {
 		//Going from 1D to 2D
-		int col = index%24;
-		int row = index/24; 
-		Location moveLocation = board.getLocation(col, row);
+		Location moveLocation = null;
+		if (index >= 24) {
+			int col = index%24;
+			int row = index/24; 
+			moveLocation = board.getLocation(col, row);
+		}
+		else {
+			moveLocation = board.getLocation(index, 0);
+		}
 		//Move has to be valid
 		if (currentPlayersTurn.validMove(moveLocation)) {
 			currentPlayersTurn.move(moveLocation, this);
 			return true;
 		}
 		return false;
+	}
+	
+
+	public boolean moveToExit(int index) {
+		// TODO Auto-generated method stub
+		Location moveLocation = null;
+		if (index >= 24) {
+			int col = index%24;
+			int row = index/24; 
+			moveLocation = board.getLocation(col, row);
+		}
+		else {
+			moveLocation = board.getLocation(index, 0);
+		}
+		//Move has to be valid
+		Room playerRoom = currentPlayer.getToken().getRoom();
+		for (Location l : playerRoom.getExits()) {
+			if (l.getX() == moveLocation.getX() && l.getY() == moveLocation.getY()) {
+				currentPlayersTurn.moveToExit(moveLocation);
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public boolean allLost() {
+		for (Player p : players) {
+			if (!p.haveLost()) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	public void nextTurn() {
+		int playerIndex = 0;
+		for (Player p : players) {
+			if (p == currentPlayer) {
+				break;
+			}
+			playerIndex++;
+		}
+		Player startingPlayer;
+		int count = 0;
+		boolean setPlayer = true;
+		if (playerIndex+1 == players.size()) {
+			playerIndex = 0;
+			startingPlayer = players.get(playerIndex);
+		}
+		else {
+			playerIndex++;
+			startingPlayer = players.get(playerIndex);
+		}
+		while (startingPlayer.haveLost()) {
+			if (playerIndex+1 == players.size()) {
+				playerIndex = 0;
+				startingPlayer = players.get(playerIndex);
+			}
+			else {
+				playerIndex++;
+				startingPlayer = players.get(playerIndex);
+			}
+			count++;
+			if (count > 8) {
+				setPlayer = false;
+				break;
+			}
+		}
+		if (setPlayer) {
+			currentPlayer = startingPlayer;
+			currentPlayersTurn = new Turn(currentPlayer, this); //Switching turns
+			canMove = false;
+		}
+		
 	}
 
 }

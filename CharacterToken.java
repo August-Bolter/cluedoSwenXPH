@@ -1,6 +1,7 @@
-package Java;
+package code;
 
 import java.util.List;
+
 
 /**
  * Character tokens are the player's game entity on the Board
@@ -66,37 +67,8 @@ public class CharacterToken extends Token {
 		return (room != null);
 	}
 
-	/** Sets the room of the token, this is called when the token walks into or out of a room
-	 * Returns string outputs to inform player of the room change
-	 * @param Board 
-	 * @return String
-	 *  */
-	public String setRoom(Board board) {
-		List<Room> rooms = board.getRoom(); //Grab the rooms of the board
-		boolean foundRoom = false;
-		//Going through each defined area of each room and check if the location of the token is inside the area, if it is the token must be in that room.
-		for(Room r : rooms) {
-			for (Location l : r.getLoc()) {
-				if (l.getX() == getX() && l.getY() == getY()) {
-					room = r;
-					foundRoom = true;
-				}
-			}
-		}
-		/** This means the token has walked out (is out of) a room so set room to null */
-		if (!foundRoom) {
-			room = null;
-		}
-
-		/** room has been entered  */
-		if (room != null) { 
-			return "You are now in the " + room.getName(); 
-		}
-		return "";
-	}
-
 	/** Sets the room of the token, used when a token is moved from one room to another directly (due to suggestions) 
-	 * @ param Room  room to be moved to
+	 * @param Room  room to be moved to
 	 * */
 	public void setRoom(Room r) {
 		room = r;

@@ -44,6 +44,10 @@ public class Turn {
 		ArrayList<Integer> diceValues = new ArrayList<Integer>(); //We return the number of each dice roll rather than total for the GUI
 		int dieRoll1 = (int)(Math.random() * 6); //Random value between 0 and 5
 		int dieRoll2 = (int)(Math.random() * 6); //Random value between 0 and 5
+		//FOR TESTING
+		//int dieRoll1 = 6;
+		//int dieRoll2 = 6;
+		
 		diceValues.add(dieRoll1+1);
 		diceValues.add(dieRoll2+1);
 		return diceValues; //Add 1 since we want a dice roll between 1 and 6 not 0 and 5
@@ -157,6 +161,7 @@ public class Turn {
 	public void move(Location moveLocation, Game game) {
 		Location prevLoc = game.getBoard().getLocation(player.getToken().getX(), player.getToken().getY());
 		previousLocations.add(prevLoc);
+		game.getGui().clearEntranceLabel(new Location(player.getToken().getX(), player.getToken().getY()));
 		player.getToken().setXPos(moveLocation.getX());
 		player.getToken().setYPos(moveLocation.getY());
 		steps--;
@@ -186,10 +191,61 @@ public class Turn {
 			}
 		}
 	}
+	
+
+	/** This method moves the character token and weapon token that were named in the suggestion into the room named in the suggestion unless they are already
+	 * in the room 
+	 * @param players		players in the game
+	 * @param board			board containing rooms and locations
+	 * @param game			game contains the characterTokens
+	 * */
+	public void moveTokens(List<Player> players, Board board, Game game) {
+		Room room = board.getRoom(suggestion.getSuggSet().getRoomC().getName()); //Gets the actual room based on the room card used in the suggestion
+		WeaponToken suggestWeapon = null;
+		
+		/** Finds the weapon token based on the weapon card used in the suggestion */
+		for (Room r : board.getRoom()) {
+			for (WeaponToken w : r.getWeapon()) {
+				if (w.getName().equalsIgnoreCase(suggestion.getSuggSet().getWeaponC().getName())) { //Do the names match
+					suggestWeapon = w;
+					if (!r.getName().equalsIgnoreCase(suggestion.getSuggSet().getRoomC().getName())) {
+						r.removeWeapon(w);
+						room.addWeapon(suggestWeapon);
+					}
+					break;
+				}
+			}
+		}
+
+		/** Finds player to move into suggested room unless already in the room*/
+		for (Player p : players) {
+			if (p.getToken().getName().equalsIgnoreCase(suggestion.getSuggSet().getCharacterC().getName())) { //If the names match
+				if (!room.getPlayers().contains(p) && p != game.getCurrentPlayer()) { //and we aren't in the room
+					int indexX = 0;
+					int indexY = 0;
+					for (Player player : room.getPlayers()) {
+						indexX++;
+						if (indexX == 2) {
+							indexX = 0;
+							indexY = 1;
+						}
+					}
+					Location topLeft = room.getLoc().get(0);
+					p.getToken().setXPos(topLeft.getX()+3+indexX);
+					p.getToken().setYPos(topLeft.getY()+1+indexY);
+					
+					p.getToken().setRoom(room); //Then change the room of the player
+					room.addPlayer(p);
+					p.getToken().setMoved(true); //Since the player was moved by a suggestion, they will have different options on their next turn
+				}
+			}
+		}
+	}
 
 	public void makeSuggestion(Gui gui, String roomName, String weaponName, String characterName) {
 		// TODO Auto-generated method stub
 		cardsFound = new HashMap<Player, Card>();
+		suggestion = new Suggestion(new CardSet(new WeaponCard(weaponName), new CharacterCard(characterName), new RoomCard(roomName)));
 		ArrayList<Card> multipleCards = new ArrayList<Card>();
 		Player multipleCardsPlayer = null;
 		for (Player p : game.getPlayers()) {
@@ -200,14 +256,16 @@ public class Turn {
 						cardsFoundPerPlayer.add(c);
 					}
 				}
-				if (cardsFoundPerPlayer.size() < 2) {
-					cardsFound.put(p, cardsFoundPerPlayer.get(0));
-				}
-				else {
-					for (Card c : cardsFoundPerPlayer) {
-						multipleCards.add(c);
+				if (cardsFoundPerPlayer.size() != 0) {
+					if (cardsFoundPerPlayer.size() < 2) {
+						cardsFound.put(p, cardsFoundPerPlayer.get(0));
 					}
-					multipleCardsPlayer = p;
+					else {
+						for (Card c : cardsFoundPerPlayer) {
+							multipleCards.add(c);
+						}
+						multipleCardsPlayer = p;
+					}
 				}
 			}
 		}
@@ -232,6 +290,40 @@ public class Turn {
 	public void setRefutePlayer(Player p) {
 		// TODO Auto-generated method stub
 		refutePlayer = p;
+	}
+
+	public boolean makeAccusation(Gui gui, String roomName, String weaponName, String characterName) {
+		// TODO Auto-generated method stub
+		if (game.getSolution().getRoomC().getName().equalsIgnoreCase(roomName)) {
+			if (game.getSolution().getWeaponC().getName().equalsIgnoreCase(weaponName)) {
+				if (game.getSolution().getCharacterC().getName().equalsIgnoreCase(characterName)) {
+					return true;
+				}
+			}
+		}
+		game.getCurrentPlayer().setLost(true);
+		return false;
+	}
+
+	public void moveToExit(Location moveLocation) {
+		// TODO Auto-generated method stub
+		game.getCurrentPlayer().getToken().setXPos(moveLocation.getX());
+		game.getCurrentPlayer().getToken().setYPos(moveLocation.getY());
+		game.getCurrentPlayer().getToken().setRoom(null);
+		
+		for (Room r : game.getBoard().getRoom()) {
+			//Make a copy to avoid concurrent modification error
+			ArrayList<Player> playersCopy = new ArrayList<Player>();
+			for (Player p : r.getPlayers()) {
+				playersCopy.add(p);
+			}
+			
+			for (Player p : playersCopy) {
+				if (p == game.getCurrentPlayer()) {
+					r.removePlayer(p);
+				}
+			}
+		}
 	}
 	
 }

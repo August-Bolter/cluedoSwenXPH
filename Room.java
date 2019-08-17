@@ -56,6 +56,10 @@ public class Room {
 		return playersInRoom;
 	}
 	
+	public void removePlayer(Player p) {
+		playersInRoom.remove(p);
+	}
+	
 	public void addPlayer(Player p) {
 		playersInRoom.add(p);
 	}
