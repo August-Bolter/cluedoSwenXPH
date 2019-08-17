@@ -1,4 +1,4 @@
-package Java;
+package code;
 
 import java.util.*;
 
@@ -14,7 +14,7 @@ public class Room {
 	private List<Location>doorwayLoc; //The doorways making up the room
 	private List<Location> doorwayExit; //The doorway "exits" (the tile that you move from to enter the room, so the exits are technically outside the room)
 
-	private List<CharacterToken> playersInRoom; //The character tokens (that the players controls) that are in the room
+	private List<Player> playersInRoom; //The character tokens (that the players controls) that are in the room
 	private Set<WeaponToken> weapons; //The weapon tokens in the room
 
 	/**
@@ -27,6 +27,7 @@ public class Room {
 		doorwayExit = new ArrayList<Location>();
 		loc = new ArrayList<Location>();
 		weapons = new HashSet<WeaponToken>();
+		playersInRoom = new ArrayList<Player>();
 	}
 
 	//Used when moving a weapon token from one room to another through suggestion and when weapons are added to rooms for the first time 
@@ -51,12 +52,12 @@ public class Room {
 		return doorwayLoc;
 	}
 
-	public List<CharacterToken> getCharacterTokens() {
+	public List<Player> getPlayers() {
 		return playersInRoom;
 	}
-
-	public List<Location> getDoorwayLocations() {
-		return doorwayLoc;  
+	
+	public void addPlayer(Player p) {
+		playersInRoom.add(p);
 	}
 
 	public String getName() {

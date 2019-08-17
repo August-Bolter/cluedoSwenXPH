@@ -1,4 +1,4 @@
-package Java;
+package code;
 
 import java.util.*;
 
@@ -28,7 +28,18 @@ public class Board {
 		findAndSetHallwayLocations();
 		registerRemainingLocations();
 		distributeWeaponTokens();
-
+	}
+	
+	/** Another constructor for board which is used for test cases, as we don't want to always want a game attached to the board in test cases. */
+	public Board() {
+		loc = new Location[24][25]; //Board is 24x25
+		room = new ArrayList<Room>();
+		weapons = new ArrayList<WeaponToken>();
+		createRoom(); //This splits the board into rooms
+		registerWalls();
+		findAndSetHallwayLocations();
+		registerRemainingLocations();
+		distributeWeaponTokens();
 	}
 
 	/** Distribute the weapon tokens randomly onto the rooms */
@@ -116,6 +127,17 @@ public class Board {
 		//Registering odd walls (walls not on the edge of the board)
 		loc[6][1].setType(new Type("Wall"));
 		loc[17][1].setType(new Type("Wall"));
+		
+		//Registering odd free space
+		loc[16][24].setType(new Type("Free Space"));
+		loc[0][7].setType(new Type("Free Space"));
+		
+		//Register "Cellar" area in the middle of the board. Treating this area as a wall as the player can't interact with it or move onto it
+		for (int i = 10; i < 15; i++) {
+			for (int j = 10; j < 17; j++) {
+				loc[i][j].setType(new Type("Wall"));
+			}
+		}
 	}
 
 	/** Registers the starting location as free space */
@@ -220,11 +242,12 @@ public class Board {
 				}
 			}
 
-			else if(room.getName().equalsIgnoreCase("Billard room")) {
+			else if(room.getName().equalsIgnoreCase("Billiard Room")) {
 				for(int j = 8; j < 13; j++) {
 					for(int i = 18; i < 24; i++) {
 						room.addLoc(loc[i][j]);
 						loc[i][j].setType(new Type("Room", room.getName()));
+						System.out.println(i + " " + j);
 					}
 				}
 			}
@@ -232,10 +255,11 @@ public class Board {
 			else if(room.getName().equalsIgnoreCase("Library")) {
 				for(int j = 14; j < 19; j++) {
 					for(int i = 17; i < 24; i++) {
-						if ((i == 17 && j == 15) || (i == 17 && j == 19) || (i == 23 && j == 15) || (i == 23 && j == 19)) {
+						if ((i == 23 && j == 14) || (i == 23 && j == 18)) {
 							loc[i][j].setType(new Type("Wall"));
+							System.out.println(i + " " + j);
 						}
-						else if ((i == 17 && j == 15) || (i == 17 && j ==19)){
+						else if ((i == 17 && j == 14) || (i == 17 && j == 18)){
 							loc[i][j].setType(new Type("Free space"));
 						}
 						else {
@@ -342,9 +366,12 @@ public class Board {
 	}
 
 	/** Gets all the rooms */
-	public List<Room> getRoom()
-	{
+	public List<Room> getRoom() {
 		return room;
+	}
+	
+	public List<WeaponToken> getWeapons() {
+		return weapons;
 	}
 
 	/** Gets the closest exit of a room from a doorway

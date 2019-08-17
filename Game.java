@@ -12,11 +12,15 @@ public class Game {
 	
 	private CardSet solution; //The solution of the game, whoever makes an accusation matching this wins the game
 	private List<Card> deck; //A deck of all the cards
+	private List<WeaponCard> weaponCards;
+	private List<CharacterCard> characterCards;
  
 	private List<Player> players; //The players in the game
 	private Board board; //The cluedo board
 	private boolean gameOver; //true if the game is over, false otherwise
 	private Player currentPlayer;
+	private Turn currentPlayersTurn;
+	private boolean canMove;
 	private Map<String, Location> startingLocations; //The starting locations of all the character tokens
 	private List<Card> allCards; //All the cards including the cards in the solution
 	private List<CharacterToken> characterTokens; //All the character tokens in cluedo
@@ -30,6 +34,8 @@ public class Game {
 		//Initializing variables
 		solution = aSolution;
 		deck = aDeck;
+		weaponCards = new ArrayList<WeaponCard>();
+		characterCards = new ArrayList<CharacterCard>();
 		players = new ArrayList<Player>();
 		gameOver = false;
 		allCards = new ArrayList<Card>();
@@ -44,7 +50,7 @@ public class Game {
 		try {
 			Scanner s = new Scanner(System.in); //We need this to read the users input
 			settingUp(s); //Setting up the game
-			playTurns(s); //Playing the game
+			//playTurns(s); //Playing the game
 		}
 		catch(Exception e) {
 			e.printStackTrace(System.out);
@@ -64,6 +70,10 @@ public class Game {
 		return currentPlayer;
 	}
 	
+	public Turn getCurrentPlayersTurn() {
+		return currentPlayersTurn;
+	}
+	
 	public void setCurrentPlayer(Player p) {
 		currentPlayer = p;
 	}
@@ -72,12 +82,24 @@ public class Game {
 		return players;
 	}
 	
+	public boolean canMove() {
+		return canMove;
+	}
+	
 	public Gui getGui() {
 		return gui;
 	}
 	
 	public Board getBoard() {
 		return board;
+	}
+	
+	public List<WeaponCard> getWeaponCards() {
+		return weaponCards;
+	}
+	
+	public List<CharacterCard> getCharacterCards() {
+		return characterCards;
 	}
 
 	public static void main(String arg[]) {
@@ -125,12 +147,16 @@ public class Game {
 		WeaponCard revolver = new WeaponCard("Revolver");
 		WeaponCard rope = new WeaponCard("Rope");
 		WeaponCard spanner = new WeaponCard("Spanner");
-		unshuffledDeck.add(candlestick);
-		unshuffledDeck.add(dagger);
-		unshuffledDeck.add(leadPipe);
-		unshuffledDeck.add(revolver);
-		unshuffledDeck.add(rope);
-		unshuffledDeck.add(spanner);
+		
+		weaponCards.add(candlestick);
+		weaponCards.add(dagger);
+		weaponCards.add(leadPipe);
+		weaponCards.add(revolver);
+		weaponCards.add(rope);
+		weaponCards.add(spanner);
+		for (WeaponCard c : weaponCards) {
+			unshuffledDeck.add(new WeaponCard(c.getName()));
+		}
 
 		//Creating and adding character cards to deck
 		CharacterCard mrsPeacock = new CharacterCard("Mrs. Peacock");
@@ -139,12 +165,17 @@ public class Game {
 		CharacterCard mrsWhite = new CharacterCard("Mrs. White");
 		CharacterCard mrGreen = new CharacterCard("Mr. Green");
 		CharacterCard professorPlum = new CharacterCard("Professor Plum");
-		unshuffledDeck.add(mrsPeacock);
-		unshuffledDeck.add(missScarlett);
-		unshuffledDeck.add(colonelMustard);
-		unshuffledDeck.add(mrsWhite);
-		unshuffledDeck.add(mrGreen);
-		unshuffledDeck.add(professorPlum);
+		
+		
+		characterCards.add(mrsPeacock);
+		characterCards.add(missScarlett);
+		characterCards.add(colonelMustard);
+		characterCards.add(mrsWhite);
+		characterCards.add(mrGreen);
+		characterCards.add(professorPlum);
+		for (CharacterCard c : characterCards) {
+			unshuffledDeck.add(new CharacterCard(c.getName()));
+		}
 
 		//Creating and adding room cards to deck
 		RoomCard kitchen = new RoomCard("Kitchen");
@@ -168,7 +199,6 @@ public class Game {
 
 		//Picking solution
 		solution = pickSolution(unshuffledDeck); 
-		System.out.println("The solution has been randomly picked");
 
 		//Makes a copy of all cards include ones in the solution before unshuffledDeck has solution removed from it
 		for (Card c : unshuffledDeck) {
@@ -271,7 +301,7 @@ public class Game {
 				if (!p.haveLost()) { //A player only can have a turn if they are still in the game
 					endingEarly = false; //A players turn always starts off not ending early (obviously)
 					cantEnter = null; //Also a players turn always starts off being able to enter any room (because they haven't left any yet)
-					Turn playersTurn = new Turn(p); //Create a turn associated with the player
+					Turn playersTurn = new Turn(p, this); //Create a turn associated with the player
 					
 					/*A list of locations that have been visited by the player during their turn and therefore can't be moved onto in the same turn */
 					List<Location> visitedLocations = new ArrayList<Location>(); 
@@ -333,7 +363,7 @@ public class Game {
 
 							List<Location> doorways = p.getToken().getRoom().getExits(); //The doorway exits of the room the player is in
 							out.println("You are in the " + p.getToken().getRoom().getName()); 
-							for (Location l : p.getToken().getRoom().getDoorwayLocations()) {
+							for (Location l : p.getToken().getRoom().getEntrances()) {
 								if (l.getPlayer() != null) { //We can't move onto a doorway exit that is occupied by another player
 									doorways.remove(l);
 								}
@@ -465,7 +495,8 @@ public class Game {
 					}
 
 					if (!endingEarly) {
-						int steps = playersTurn.rollDice(); //Number of steps player can move determined by dice roll
+						List<Integer> diceValues = playersTurn.rollDice();
+						int steps = diceValues.get(0) + diceValues.get(1); //Number of steps player can move determined by dice roll
 						out.println("You rolled a " + steps);
 						//Player must move all their steps
 						while (steps > 0) {
@@ -922,6 +953,28 @@ public class Game {
 		playersTurn.makeAccusation(new CardSet(weaponCard, characterCard, roomCard));
 		Accusation playersAccusation = playersTurn.getAccusation();  
 		return playersAccusation;
+	}
+
+	public ArrayList<Integer> rollDice() {
+		currentPlayersTurn = new Turn(getCurrentPlayer(), this); //Once the player has rolled the dice their turn has started
+		canMove = true;
+		ArrayList<Integer> diceRolls = new ArrayList<Integer>();
+		diceRolls = currentPlayersTurn.rollDice();
+		currentPlayersTurn.setSteps(diceRolls.get(0) + diceRolls.get(1));
+		return diceRolls;
+	}
+
+	public boolean move(int index) {
+		//Going from 1D to 2D
+		int col = index%24;
+		int row = index/24; 
+		Location moveLocation = board.getLocation(col, row);
+		//Move has to be valid
+		if (currentPlayersTurn.validMove(moveLocation)) {
+			currentPlayersTurn.move(moveLocation, this);
+			return true;
+		}
+		return false;
 	}
 
 }
