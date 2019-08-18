@@ -24,7 +24,7 @@ public class CharacterToken extends Token {
 		yPos = startingLocation.getY();
 		characterName = aCharacterName;
 		room = null; //Players are initialized at designated starting positions outside the 10 rooms.
-		movedBySuggestion = false; // 
+		movedBySuggestion = false; //Has the player been moved to a room because they were mentioned in a suggestion?
 	}
 
 	public void setMoved(boolean setMove) {
@@ -60,11 +60,6 @@ public class CharacterToken extends Token {
 	/** gets character's y position on the board */
 	public int getY(){
 		return yPos;
-	}
-
-	/** Checks if the token is in a room */
-	public boolean inRoomCheck() {
-		return (room != null);
 	}
 
 	/** Sets the room of the token, used when a token is moved from one room to another directly (due to suggestions) 

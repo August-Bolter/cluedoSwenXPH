@@ -56,7 +56,10 @@ public class Gui extends JFrame implements MouseListener {
 	enum GuiState{
 		Setup, SetupDone
 	}
-		
+
+	public static void main(String arg[]) {
+		Game cluedo = new Game(null, null, null); //All set to null since the game is what defines these parameters, so they are set later on.
+	}
 	
 	public Gui(Game g) {
 		super("Cluedo");
@@ -71,6 +74,10 @@ public class Gui extends JFrame implements MouseListener {
 		numPlayersSetup(); //Before showing the main GUI we need to do the very initial setup (picking numbers and names)
 	}
 	
+	public Dimension getScreenSize() {
+		return screenSize;
+	}
+	
 	private void addKListener() {
 		this.requestFocusInWindow();
 		this.setFocusable(true);
@@ -78,100 +85,89 @@ public class Gui extends JFrame implements MouseListener {
 
 			@Override
 			public void keyPressed(KeyEvent e) {
-				int keyPressed = e.getKeyCode();
-				System.out.println(keyPressed);
-				System.out.println(KeyEvent.VK_UP);
-				if (game.canMove()) {
-					//Move up if possible
-					if (keyPressed == KeyEvent.VK_UP) {
-						int index = game.getCurrentPlayer().getToken().getX() + game.getCurrentPlayer().getToken().getY()*24;
-						if (index >= 24) {
-							index = index - 24;
-							movePlease(index);
-						}
-					}
-					//Move down
-					else if (keyPressed == KeyEvent.VK_DOWN) {
-						int index = game.getCurrentPlayer().getToken().getX() + game.getCurrentPlayer().getToken().getY()*24;
-						if (index <= 575) {
-							index = index + 24;
-							movePlease(index);
-						}
-					}
-					//Move left
-					else if (keyPressed == KeyEvent.VK_LEFT) {
-						int index = game.getCurrentPlayer().getToken().getX() + game.getCurrentPlayer().getToken().getY()*24;
-						if (index % 24 != 0) {
-							index = index - 1;
-							movePlease(index);
-						}
-					}
-					//Move right
-					else if (keyPressed == KeyEvent.VK_RIGHT) {
-						int index = game.getCurrentPlayer().getToken().getX() + game.getCurrentPlayer().getToken().getY()*24;
-						if ((index+1)%24 != 0) {
-							index = index + 1;
-							movePlease(index);
-						}
-					}
-				}
-				
-				//Roll dice
-				if (keyPressed == KeyEvent.VK_D) {
-					if (rollDice.isEnabled()) {
-						rollDice.setEnabled(false);
-						drawDiceNums(game.rollDice());
-						highlightMoveSpots();
-						revalidate();
-						repaint();
-					}
-				}
-				
-				//Make suggestion
-				else if (keyPressed == KeyEvent.VK_S) {
-					if (makeSuggestion.isEnabled()) {
-						makeSuggestion.setEnabled(false);
-						drawSuggestion();
-						revalidate();
-						repaint();
-					}
-				}
-				
-				//Make accusation
-				else if (keyPressed == KeyEvent.VK_A) {
-					if (makeAccusation.isEnabled()) {
-						for (Frame f : Frame.getFrames()) {
-							if (!f.getTitle().equals("Cluedo")) {
-								f.dispose();
+				if (state == GuiState.SetupDone) {
+					int keyPressed = e.getKeyCode();
+					if (game.canMove()) {
+						//Move up if possible
+						if (keyPressed == KeyEvent.VK_UP) {
+							int index = game.getCurrentPlayer().getToken().getX() + game.getCurrentPlayer().getToken().getY()*24;
+							if (index >= 24) {
+								index = index - 24;
+								movePlease(index);
 							}
 						}
-						makeAccusation.setEnabled(false);
-						drawAccusation();
-						revalidate();
-						repaint();
+						//Move down
+						else if (keyPressed == KeyEvent.VK_DOWN) {
+							int index = game.getCurrentPlayer().getToken().getX() + game.getCurrentPlayer().getToken().getY()*24;
+							if (index <= 575) {
+								index = index + 24;
+								movePlease(index);
+							}
+						}
+						//Move left
+						else if (keyPressed == KeyEvent.VK_LEFT) {
+							int index = game.getCurrentPlayer().getToken().getX() + game.getCurrentPlayer().getToken().getY()*24;
+							if (index % 24 != 0) {
+								index = index - 1;
+								movePlease(index);
+							}
+						}
+						//Move right
+						else if (keyPressed == KeyEvent.VK_RIGHT) {
+							int index = game.getCurrentPlayer().getToken().getX() + game.getCurrentPlayer().getToken().getY()*24;
+							if ((index+1)%24 != 0) {
+								index = index + 1;
+								movePlease(index);
+							}
+						}
 					}
-				}
-				
-				//End turn
-				else if (keyPressed == KeyEvent.VK_E) {
-					if (endTurn.isEnabled()) {
-						
+					
+					//Roll dice
+					if (keyPressed == KeyEvent.VK_D) {
+						rollDice.doClick();
 					}
-				}
-				
-				//Quit
-				else if (keyPressed == KeyEvent.VK_E) {
 					
-				}
-				
-				//Color reference
-				else if (keyPressed == KeyEvent.VK_C) {
+					//Make suggestion
+					else if (keyPressed == KeyEvent.VK_S) {
+						makeSuggestion.doClick();
+					}
 					
-				}
-				
-				//Rules
-				else if (keyPressed == KeyEvent.VK_R) {
+					//Make accusation
+					else if (keyPressed == KeyEvent.VK_A) {
+						makeAccusation.doClick();
+					}
 					
+					//End turn
+					else if (keyPressed == KeyEvent.VK_E) {
+						endTurn.doClick();
+					}
+					
+					//Quit
+					else if (keyPressed == KeyEvent.VK_Q) {
+						JMenu menu = menuBar.getMenu(0);
+						JMenuItem quit = menu.getItem(0);
+						quit.doClick();
+					}
+					
+					//Color reference
+					else if (keyPressed == KeyEvent.VK_C) {
+						JMenu menu = menuBar.getMenu(2);
+						JMenuItem references = menu.getItem(0);
+						references.doClick();
+					}
+					
+					//Rules
+					else if (keyPressed == KeyEvent.VK_R) {
+						JMenu menu = menuBar.getMenu(2);
+						JMenuItem rules = menu.getItem(1);
+						rules.doClick();
+					}
+					
+					else if (keyPressed == KeyEvent.VK_K) {
+						JMenu menu = menuBar.getMenu(1);
+						JMenuItem keyBindings = menu.getItem(0);
+						keyBindings.doClick();
+					}
 				}
 				
 			}
@@ -247,6 +243,7 @@ public class Gui extends JFrame implements MouseListener {
 			formattingBox.add(confirmNumPlayers);
 
 			this.add(formattingBox); //Adding it to the initial GUI
+			//this.add(confirmNumPlayers);
 			revalidate();
 			repaint();
 			confirmNumPlayers.addActionListener(new ActionListener() {
@@ -274,7 +271,11 @@ public class Gui extends JFrame implements MouseListener {
 			drawMenuBar(); //Initializing and drawing menu bar
 			drawBoard(); 
 			drawBottomLayer();
+			setPlayerToolTips();
+			setRoomToolTips();
+			setWeaponToolTips();
 			this.add(mainComponents); //Add the components to the main GUI
+			state = GuiState.SetupDone;
 			//Updating
 			revalidate();
 			repaint();
@@ -304,6 +305,14 @@ public class Gui extends JFrame implements MouseListener {
 		
 		//The Game MenuBar option
 		JMenu game = new JMenu("Game");
+		JMenuItem keyShortcuts = new JMenuItem("Keyboard Shortcuts");
+		keyShortcuts.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent ev) {
+				if(ev.getSource() == keyShortcuts) {
+					drawKeyShortcuts();
+				}	
+			}});
+		game.add(keyShortcuts);
 		
 		//The Help MenuBar option
 		JMenu help = new JMenu("Help");
@@ -334,6 +343,51 @@ public class Gui extends JFrame implements MouseListener {
 		mainComponents.add(menuBar); //Now the menu bar will display
 		revalidate();
 		repaint();
+	}
+
+	protected void drawKeyShortcuts() {
+		ArrayList<JLabel> labels = new ArrayList<JLabel>();
+		
+		JDialog keySWindow = new JDialog();
+		Box keySBox = Box.createVerticalBox();
+		JPanel keySPanel = new JPanel();
+
+		JLabel keySUp = new JLabel("Move up: UP_ARROW");
+		JLabel keySDown = new JLabel("Move down: DOWN_ARROW");
+		JLabel keySLeft = new JLabel("Move left: LEFT_ARROW");
+		JLabel keySRight = new JLabel("Move right: RIGHT_ARROW");
+		JLabel keySRollDice = new JLabel("Roll dice: R");
+		JLabel keySSuggestion = new JLabel("Make suggestion: S");
+		JLabel keySAccusation = new JLabel("Make accusation: A");
+		JLabel keySEndTurn = new JLabel("End turn: E");
+		JLabel keySColorReferences = new JLabel("Color references: C");
+		JLabel keySRules = new JLabel("Show rules: R");
+		JLabel keySKeyBindings = new JLabel("Show key bindings: K");
+		JLabel keySQuitGame = new JLabel("Quit game: Q");
+		labels.add(keySUp);
+		labels.add(keySDown);
+		labels.add(keySLeft);
+		labels.add(keySRight);
+		labels.add(keySRollDice);
+		labels.add(keySSuggestion);
+		labels.add(keySAccusation);
+		labels.add(keySEndTurn);
+		labels.add(keySColorReferences);
+		labels.add(keySRules);
+		labels.add(keySKeyBindings);
+		labels.add(keySQuitGame);
+		
+		for (JLabel l : labels) {
+			l.setFont(new Font(l.getFont().getName(), Font.PLAIN, 26));
+			keySBox.add(l);
+		}
+		
+		keySPanel.add(keySBox);
+		keySWindow.add(keySPanel);
+		
+		keySWindow.setVisible(true);
+		keySWindow.pack();
+		
 	}
 
 	protected void drawRules() {
@@ -392,7 +446,68 @@ public class Gui extends JFrame implements MouseListener {
 		mainComponents.add(board); //Now we can see the board
 		revalidate();
 		repaint();
+	}
+	
+	private void setWeaponToolTips() {
+		for (Component c : board.getComponents()) {
+			if (c.getBackground().equals(new Color(255, 98, 98))) {
+				JPanel panel = (JPanel) c;
+				JLabel label = (JLabel) panel.getComponent(0);
+				panel.setToolTipText(label.getText());
+			}
+		}
+	}
+	
+	private void setRoomToolTips() {
+		for (Room r : game.getBoard().getRoom()) {
+			ArrayList<Location> dontSet = new ArrayList<Location>();
+			int numPlayers = r.getPlayers().size();
+			int indexX = 0;
+			int indexY = 0;
+			while (numPlayers > 0) {
+				dontSet.add(game.getBoard().getLocation(r.getLoc().get(0).getX()+3+indexX, r.getLoc().get(0).getY()+1+indexY));
+				indexX++;
+				if (indexX == 2) {
+					indexX = 0;
+					indexY++;
+				}
+				numPlayers--;
+			}
+			
+			for (Location l : r.getLoc()) {
+				boolean foundPlayer = false;
+				for (Location dontSetLoc : dontSet) {
+					if (l.getX() == dontSetLoc.getX() && l.getY() == dontSetLoc.getY()) {
+						foundPlayer = true;
+					}
+				}
+				if (!foundPlayer) {
+					JPanel j = (JPanel) board.getComponent(l.getX() + l.getY()*24);
+					j.setToolTipText(r.getName());
+				}
+			}
+		}
+	}
+	
+	private void setPlayerToolTips() {
+		for (Component comp : board.getComponents()) {
+			JPanel p = (JPanel) comp;
+			if (comp.getName() == null || comp.getName().equalsIgnoreCase("Doorway Entrance")) {
+				p.setToolTipText(null);
+			}
+		}
 		
+		for (Component c : board.getComponents()) {
+			if (c.getBackground().equals(new Color(244, 139, 255))) {
+				JPanel panel = (JPanel) c;
+				JLabel label = (JLabel) panel.getComponent(0);
+				for (Player p : game.getPlayers()) {
+					if (p.getToken().getName().equalsIgnoreCase(label.getText())) {
+						panel.setToolTipText(p.getName());
+					}
+				}
+			}
+		}
 	}
 
 	/** Draws the weapon tokens in their respective rooms */
@@ -689,6 +804,12 @@ public class Gui extends JFrame implements MouseListener {
 					}
 					mainComponents.remove(2);
 					drawBottomLayer();
+					
+					if (game.getCurrentPlayer().getToken().getMoved()) {
+						game.getCurrentPlayer().getToken().setMoved(false);
+						drawHaveMovedPanel();
+					}
+					
 					revalidate();
 					repaint();
 				 }	
@@ -706,6 +827,18 @@ public class Gui extends JFrame implements MouseListener {
 		revalidate();
 		repaint();
 		
+	}
+
+	protected void drawHaveMovedPanel() {
+		String[] choices = new String[] {"Move", "Suggestion"};
+		int answer = JOptionPane.showOptionDialog(game.getGui(), "Would you like to move out of this room or make a suggestion?", "Suggestion or move", JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, choices, choices[0]);
+		if (answer == 1) { //User chose suggestion, if they chose move nothing needs to be changed
+			rollDice.setEnabled(false);
+			makeSuggestion.setEnabled(true);
+			makeAccusation.setEnabled(true);
+			endTurn.setEnabled(true);
+			makeSuggestion.doClick();
+		}
 	}
 
 	private void highlightRoomExits() {
@@ -726,13 +859,149 @@ public class Gui extends JFrame implements MouseListener {
 		}
 	}
 
+	protected void drawLosingPanel() {
+		JDialog losingDialog = new JDialog();
+		losingDialog.setTitle("Wrong Accusation");
+		JPanel losingPanel = new JPanel(new GridLayout(2, 1));
+		losingPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+		String str = game.getCurrentPlayer().getName() + " your accusation was wrong. ";
+		
+		if(game.allLost()) {
+			JLabel playerLost = new JLabel(str);
+			playerLost.setFont(new Font(playerLost.getFont().getName(), Font.PLAIN, 36));
+			losingPanel.add(playerLost);
+			JLabel allPlayersLost = new JLabel("All players have made an incorrect accusation therefore the game is over");
+			allPlayersLost.setFont(new Font(allPlayersLost.getFont().getName(), Font.PLAIN, 36));
+			losingPanel.add(allPlayersLost);
+			losingDialog.add(losingPanel);
+			losingDialog.setVisible(true);
+			losingDialog.pack();
+            Timer t = new Timer(4000, new ActionListener() {
+
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                	System.exit(0);
+                }
+            });
+
+            t.start();
+		}
+		else {
+			str = str + "You have lost the game but still must refute suggestions when you can";
+			JLabel playerLost = new JLabel(str);
+			playerLost.setFont(new Font(playerLost.getFont().getName(), Font.PLAIN, 36));
+			losingPanel.add(playerLost);
+			game.moveLostPlayerIfRequired();
+		}
+		losingDialog.add(losingPanel);
+		losingDialog.setVisible(true);
+		losingDialog.pack();
+	}
+
+	protected void drawWinningPanel() {
+		JDialog winningDialog = new JDialog();
+		winningDialog.setTitle("Correct Accusation");
+		JPanel winningPanel = new JPanel();
+		winningPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+		JLabel playerWon = new JLabel(game.getCurrentPlayer().getName() + " your accusation was correct. You have won the game!");
+		playerWon.setFont(new Font(playerWon.getFont().getName(), Font.PLAIN, 36));
+		
+		winningPanel.add(playerWon);
+		winningDialog.add(winningPanel);
+		winningDialog.setVisible(true);
+		winningDialog.pack();
+      
+		Timer t = new Timer(3450, new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+            	System.exit(0);
+            }
+        });
+
+        t.start();
+       
+	}
+
+	protected void drawSuggestion() {
+		// TODO Auto-generated method stub
+		JDialog suggestionPane = new JDialog();
+		suggestionPane.setTitle("Suggestion Creator");
+		JPanel suggestionBox = new JPanel(new GridBagLayout());
+		GridBagConstraints constraint = new GridBagConstraints(); //Constraining/Morphing the layout
+		
+		suggestionBox.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+		JLabel makeSuggestionInfo = new JLabel("Please make a suggestion");
+		makeSuggestionInfo.setFont(new Font(makeSuggestionInfo.getFont().getName(), Font.PLAIN, 20));
+		constraint.gridx = 0;
+		constraint.gridy = 0;
+		constraint.insets = new Insets(5, 0, 5, 0);
+		suggestionBox.add(makeSuggestionInfo, constraint);
+		
+		String[] room = {game.getCurrentPlayer().getToken().getRoom().getName()};
+		String[] weapon = new String[6];
+		String[] character = new String[6];
+		int index = 0;
+		for (WeaponCard c : game.getWeaponCards()) {
+			weapon[index] = c.getName();
+			index++;
+		}
+		index = 0;
+		for (CharacterCard c : game.getCharacterCards()) {
+			character[index] = c.getName();
+			index++;
+		}
+		JComboBox<String> rooms = new JComboBox<String>(room);
+		JComboBox<String> weapons = new JComboBox<String>(weapon);
+		JComboBox<String> characters = new JComboBox<String>(character);
+		rooms.setSelectedIndex(0);
+		rooms.setPreferredSize(new Dimension((int) (screenSize.getWidth()/20), (int) (screenSize.getHeight()/40)));
+		weapons.setSelectedIndex(0);
+		weapons.setPreferredSize(new Dimension((int) (screenSize.getWidth()/20), (int) (screenSize.getHeight()/40)));
+		characters.setSelectedIndex(0);
+		rooms.setPreferredSize(new Dimension((int) (screenSize.getWidth()/20), (int) (screenSize.getHeight()/40)));
+		JPanel comboboxes = new JPanel(new GridLayout(3, 2));
+		
+		comboboxes.add(new JLabel("Room: "));
+		comboboxes.add(rooms);
+		comboboxes.add(new JLabel("Weapon: "));
+		comboboxes.add(weapons);
+		comboboxes.add(new JLabel("Character: "));
+		comboboxes.add(characters);
+		
+		confirmSuggestion = new JButton("Confirm suggestion");
+		confirmSuggestion.setFont(new Font(confirmSuggestion.getFont().getName(), Font.PLAIN, 14));
+		confirmSuggestion.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent ev) {
+				if(ev.getSource() == confirmSuggestion) {
+					game.getCurrentPlayersTurn().makeSuggestion(game.getGui(), (String) rooms.getSelectedItem(), (String) weapons.getSelectedItem(), (String) characters.getSelectedItem());
+					suggestionPane.dispose();
+					revalidate();
+					repaint();
+				 }	
+			}});
+		constraint.gridy = 1;
+		suggestionBox.add(comboboxes, constraint);
+		constraint.gridy = 2;
+		suggestionBox.add(confirmSuggestion, constraint);
+		suggestionPane.add(suggestionBox);
+		suggestionPane.setVisible(true);
+		suggestionPane.pack();
+	}
+	
 	protected void drawAccusation() {
 		// TODO Auto-generated method stub
 		JDialog accusationPane = new JDialog();
 		accusationPane.setTitle("Accusation Creator");
-		JPanel accusationBox = new JPanel(new GridLayout(3, 1));
+		JPanel accusationBox = new JPanel(new GridBagLayout());
+		accusationBox.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+		GridBagConstraints constraint = new GridBagConstraints(); //Constraining/Morphing the layout
+		
 		JLabel makeAccusationInfo = new JLabel("Please make an accusation");
-		makeAccusationInfo.setFont(new Font(makeAccusationInfo.getFont().getName(), Font.PLAIN, 18));
+		makeAccusationInfo.setFont(new Font(makeAccusationInfo.getFont().getName(), Font.PLAIN, 20));
+		constraint.gridx = 0;
+		constraint.gridy = 0;
+		constraint.insets = new Insets(5, 0, 5, 0);
 		
 		String[] room = new String[9];
 		String[] weapon = new String[6];
@@ -772,140 +1041,30 @@ public class Gui extends JFrame implements MouseListener {
 		confirmAccusation.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent ev) {
 				if(ev.getSource() == confirmAccusation) {
-					if (game.getCurrentPlayersTurn().makeAccusation(game.getGui(), (String) rooms.getSelectedItem(), (String) weapons.getSelectedItem(), (String) characters.getSelectedItem())) {
-						drawWinningPanel();
+					int answer = JOptionPane.showConfirmDialog(game.getGui(), "Are you sure you want to make this accusation?", "Confirm accusation", JOptionPane.YES_NO_OPTION);
+					if (answer == JOptionPane.YES_OPTION) {	
+						if (game.getCurrentPlayersTurn().makeAccusation(game.getGui(), (String) rooms.getSelectedItem(), (String) weapons.getSelectedItem(), (String) characters.getSelectedItem())) {
+							drawWinningPanel();
+						}
+						else {
+							drawLosingPanel();
+						}
+						accusationPane.dispose();
+						revalidate();
+						repaint();
 					}
-					else {
-						drawLosingPanel();
-					}
-					accusationPane.dispose();
-					revalidate();
-					repaint();
 				 }	
+				
 			}});
-		accusationBox.add(makeAccusationInfo);
-		accusationBox.add(comboboxes);
-		accusationBox.add(confirmAccusation);
+		accusationBox.add(makeAccusationInfo, constraint);
+		constraint.gridy = 1;
+		accusationBox.add(comboboxes, constraint);
+		constraint.gridy = 2;
+		accusationBox.add(confirmAccusation, constraint);
 		accusationPane.add(accusationBox);
 		accusationPane.setVisible(true);
 		accusationPane.pack();
 		
-	}
-
-	protected void drawLosingPanel() {
-		JDialog losingDialog = new JDialog();
-		losingDialog.setTitle("Wrong Accusation");
-		JPanel losingPanel = new JPanel(new GridLayout(2, 1));
-		String str = game.getCurrentPlayer().getName() + " your accusation was wrong. ";
-		
-		if(game.allLost()) {
-			JLabel playerLost = new JLabel(str);
-			playerLost.setFont(new Font(playerLost.getFont().getName(), Font.PLAIN, 36));
-			losingPanel.add(playerLost);
-			JLabel allPlayersLost = new JLabel("All players have made an incorrect accusation therefore the game is over");
-			allPlayersLost.setFont(new Font(allPlayersLost.getFont().getName(), Font.PLAIN, 36));
-			losingPanel.add(allPlayersLost);
-			losingDialog.add(losingPanel);
-			losingDialog.setVisible(true);
-			losingDialog.pack();
-            Timer t = new Timer(3600, new ActionListener() {
-
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                	System.exit(0);
-                }
-            });
-
-            t.start();
-		}
-		else {
-			str = str + "You have lost the game but still must refute suggestions when you can";
-			JLabel playerLost = new JLabel(str);
-			playerLost.setFont(new Font(playerLost.getFont().getName(), Font.PLAIN, 36));
-			losingPanel.add(playerLost);
-		}
-		losingDialog.add(losingPanel);
-		losingDialog.setVisible(true);
-		losingDialog.pack();
-	}
-
-	protected void drawWinningPanel() {
-		JDialog winningDialog = new JDialog();
-		winningDialog.setTitle("Correct Accusation");
-		JPanel winningPanel = new JPanel();
-		JLabel playerWon = new JLabel(game.getCurrentPlayer().getName() + " your accusation was correct, you have won the game!");
-		playerWon.setFont(new Font(playerWon.getFont().getName(), Font.PLAIN, 36));
-		
-		winningPanel.add(playerWon);
-		winningDialog.add(winningPanel);
-		winningDialog.setVisible(true);
-		winningDialog.pack();
-      
-		Timer t = new Timer(3600, new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-            	System.exit(0);
-            }
-        });
-
-        t.start();
-       
-	}
-
-	protected void drawSuggestion() {
-		// TODO Auto-generated method stub
-		JDialog suggestionPane = new JDialog();
-		suggestionPane.setTitle("Suggestion Creator");
-		JPanel suggestionBox = new JPanel(new GridLayout(3, 1));
-		JLabel makeSuggestionInfo = new JLabel("Please make a suggestion");
-		makeSuggestionInfo.setFont(new Font(makeSuggestionInfo.getFont().getName(), Font.PLAIN, 18));
-		
-		String[] room = {game.getCurrentPlayer().getToken().getRoom().getName()};
-		String[] weapon = new String[6];
-		String[] character = new String[6];
-		int index = 0;
-		for (WeaponCard c : game.getWeaponCards()) {
-			weapon[index] = c.getName();
-			index++;
-		}
-		index = 0;
-		for (CharacterCard c : game.getCharacterCards()) {
-			character[index] = c.getName();
-			index++;
-		}
-		JComboBox<String> rooms = new JComboBox<String>(room);
-		JComboBox<String> weapons = new JComboBox<String>(weapon);
-		JComboBox<String> characters = new JComboBox<String>(character);
-		rooms.setSelectedIndex(0);
-		weapons.setSelectedIndex(0);
-		characters.setSelectedIndex(0);
-		JPanel comboboxes = new JPanel(new GridLayout(3, 2));
-		
-		comboboxes.add(new JLabel("Room: "));
-		comboboxes.add(rooms);
-		comboboxes.add(new JLabel("Weapon: "));
-		comboboxes.add(weapons);
-		comboboxes.add(new JLabel("Character: "));
-		comboboxes.add(characters);
-		
-		confirmSuggestion = new JButton("Confirm suggestion");
-		confirmSuggestion.setFont(new Font(confirmSuggestion.getFont().getName(), Font.PLAIN, 12));
-		confirmSuggestion.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent ev) {
-				if(ev.getSource() == confirmSuggestion) {
-					game.getCurrentPlayersTurn().makeSuggestion(game.getGui(), (String) rooms.getSelectedItem(), (String) weapons.getSelectedItem(), (String) characters.getSelectedItem());
-					suggestionPane.dispose();
-					revalidate();
-					repaint();
-				 }	
-			}});
-		suggestionBox.add(makeSuggestionInfo);
-		suggestionBox.add(comboboxes);
-		suggestionBox.add(confirmSuggestion);
-		suggestionPane.add(suggestionBox);
-		suggestionPane.setVisible(true);
-		suggestionPane.pack();
 	}
 
 	/** Highlights the locations on the board which the player can move to (player can only move one step before movememnt) */
@@ -1118,12 +1277,15 @@ public class Gui extends JFrame implements MouseListener {
 			//Setting color of card based on type so its easier to know what type of card each card is.
 			if (c instanceof WeaponCard) {
 				newCard.setBackground(new Color(255, 98, 98));
+				newCard.setToolTipText("Weapon Card");
 			}
 			else if (c instanceof CharacterCard) {
 				newCard.setBackground(new Color(244, 139, 255));
+				newCard.setToolTipText("Character Card");
 			}
 			else {
 				newCard.setBackground(new Color(70, 218, 235));
+				newCard.setToolTipText("Room Card");
 			}
 			newCard.add(cardLabel);
 			cardPanel.add(newCard);
@@ -1172,39 +1334,6 @@ public class Gui extends JFrame implements MouseListener {
 
 	@Override
 	public void mouseClicked(MouseEvent e) {
-		Object item = e.getSource();
-		int xOriginal = game.getCurrentPlayer().getToken().getX();
-		int yOriginal = game.getCurrentPlayer().getToken().getY();
-		//If the user has clicked on a location on the board
-		if (item instanceof JPanel) {
-			JPanel locationClicked = (JPanel) item;
-			if (locationClicked.getParent() == board && locationClicked != board) {
-				//Then find its index in the JPanel board
-				int index = 0;
-				for (Component c : board.getComponents()) {
-					JPanel j = (JPanel) c;
-					if (j == locationClicked) {
-						break;
-					}
-					index++;
-				}
-				if(game.canMove()) {
-					movePlease(index);
-				}
-				//Or else we are moving to a room exit
-				else if (!haveMoved) {
-					if(game.moveToExit(index)) {
-						clearColorsWhenExiting(index, xOriginal, yOriginal);
-						drawNamesWhenExiting(index, xOriginal, yOriginal);
-						rollDice.setEnabled(true);
-						haveMoved = true;
-					}
-					else {
-						
-					}
-				}
-			}
-		}
 		
 	}
 
@@ -1214,6 +1343,9 @@ public class Gui extends JFrame implements MouseListener {
 			//Show the players movement
 			clearColors();
 			drawNames();
+			setPlayerToolTips();
+			setRoomToolTips();
+			setWeaponToolTips();
 			if (game.getCurrentPlayersTurn().getSteps() != 0) {
 				highlightMoveSpots();
 			}
@@ -1229,7 +1361,10 @@ public class Gui extends JFrame implements MouseListener {
 		}
 		//If the move is invalid
 		else {
-			//Tell user they can't move there
+			if (game.getCurrentPlayersTurn().getSteps() != 0) {
+				String[] options = {"OK"};
+				int answer = JOptionPane.showOptionDialog(game.getGui(), "That move is invalid. Please move onto one of the highlighted (yellow) locations", "Invalid move", JOptionPane.OK_OPTION, JOptionPane.WARNING_MESSAGE, null, options, options[0]);
+			}
 		}
 		
 	}
@@ -1280,7 +1415,42 @@ public class Gui extends JFrame implements MouseListener {
 
 	@Override
 	public void mouseReleased(MouseEvent e) {
-		
+		Object item = e.getSource();
+		int xOriginal = game.getCurrentPlayer().getToken().getX();
+		int yOriginal = game.getCurrentPlayer().getToken().getY();
+		//If the user has clicked on a location on the board
+		if (item instanceof JPanel) {
+			JPanel locationClicked = (JPanel) item;
+			if (locationClicked.getParent() == board && locationClicked != board) {
+				//Then find its index in the JPanel board
+				int index = 0;
+				for (Component c : board.getComponents()) {
+					JPanel j = (JPanel) c;
+					if (j == locationClicked) {
+						break;
+					}
+					index++;
+				}
+				if(game.canMove()) {
+					movePlease(index);
+				}
+				//Or else we are moving to a room exit
+				else if (!haveMoved) {
+					if(game.moveToExit(index)) {
+						clearColorsWhenExiting(index, xOriginal, yOriginal);
+						drawNamesWhenExiting(index, xOriginal, yOriginal);
+						rollDice.setEnabled(true);
+						haveMoved = true;
+					}
+					else {
+						if (game.getCurrentPlayer().getToken().getRoom() != null) {
+							String[] options = {"OK"};
+							int answer = JOptionPane.showOptionDialog(game.getGui(), "That move is invalid. Please move onto one of the highlighted (yellow) locations", "Invalid move", JOptionPane.OK_OPTION, JOptionPane.WARNING_MESSAGE, null, options, options[0]);
+						}
+					}
+				}
+			}
+		}
 	}
 
 	public void refute(ArrayList<Card> cardsFoundPerPlayer, Player p) {
@@ -1297,6 +1467,7 @@ public class Gui extends JFrame implements MouseListener {
 		    }
 		});
 		JPanel refuteBox = new JPanel(new GridLayout(3, 1));
+		refuteBox.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 		JLabel refuteHeading = new JLabel(p.getName() + " you have multiple cards you can use to refute, which one will you pick?");
 		refuteBox.add(refuteHeading);
 		
@@ -1338,6 +1509,7 @@ public class Gui extends JFrame implements MouseListener {
 		JDialog refutePane = new JDialog();
 		refutePane.setTitle("Suggestion findings");
 		JPanel refuteBox = new JPanel(new GridLayout(3, 1));
+		refuteBox.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 		if (game.getCurrentPlayersTurn().cardsFound.values().size() == 0) {
 			JLabel noCardsToRefute = new JLabel("No one was able to refute your suggestion");
 			refuteBox.add(noCardsToRefute);
@@ -1355,15 +1527,29 @@ public class Gui extends JFrame implements MouseListener {
 		drawNames();
 		drawWeapons();
 		clearAfterSuggestion();
+		setPlayerToolTips();
+		setRoomToolTips();
+		setWeaponToolTips();
 		revalidate();
 		repaint();
 	}
 
 	public void clearEntranceLabel(Location l) {
-		// TODO Auto-generated method stub
 		JPanel p = (JPanel) board.getComponent((l.getX() + l.getY()*24));
 		p.remove(0);
 
+	}
+
+	public void clearAfterDeadMovement(int i, int j) {
+		Component c = board.getComponent((i + j*24));
+		JPanel panel = (JPanel) c;
+		JLabel label = (JLabel) panel.getComponent(0);
+		panel.remove(0);
+		panel.setBackground(new Color(71, 228, 92));
+		Component cNew = board.getComponent(game.getCurrentPlayer().getToken().getX() + game.getCurrentPlayer().getToken().getY()*24);
+		JPanel newPanel = (JPanel) cNew;
+		newPanel.setBackground(new Color(244, 139, 255));
+		newPanel.add(label);
 	}
 	
 }

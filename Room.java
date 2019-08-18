@@ -30,28 +30,32 @@ public class Room {
 		playersInRoom = new ArrayList<Player>();
 	}
 
-	//Used when moving a weapon token from one room to another through suggestion and when weapons are added to rooms for the first time 
+	/** Used when moving a weapon token from one room to another through suggestion and when weapons are added to rooms for the first time */
 	public void addWeapon(WeaponToken w) {
 		weapons.add(w);
 	}
 
-	//Used when moving a weapon token from one room to another through suggestion
+	/** Used when moving a weapon token from one room to another through suggestion */
 	public void removeWeapon(WeaponToken w) {
 		weapons.remove(w);
 	}
 
+	/** Get all the weapons in the room */
 	public Set<WeaponToken> getWeapon() {
 		return weapons;
 	}
 
+	/** Get all the room exits */
 	public List<Location> getExits() {
 		return doorwayExit;
 	}
 	
+	/** Get all the room entrances */
 	public List<Location> getEntrances() {
 		return doorwayLoc;
 	}
 
+	/** Get all players in the room */
 	public List<Player> getPlayers() {
 		return playersInRoom;
 	}
@@ -68,11 +72,12 @@ public class Room {
 		return name;
 	}
 
+	/** Get all the locations which are contained within this room */
 	public List<Location> getLoc() {
 		return loc;
 	}
 
-	//Adds a location to the room
+	/** Adds a location to the room */
 	public void addLoc(Location aLoc) {
 		loc.add(aLoc);
 	}

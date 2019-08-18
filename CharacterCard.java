@@ -1,6 +1,6 @@
 package code;
 
-/** A character card consisting of the name of the character.*/
+/** A character card with the name of the character associated with the card.*/
 public class CharacterCard extends Card
 {
 	

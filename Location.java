@@ -16,15 +16,18 @@ public class Location {
 		player = null; //If player == null then there is no player on the location
 	}
 
-	//Type is set after the board and all the locations have been created
+
+	/** Sets the type of location. Type is set after the board and all the locations have been created */
 	public void setType(Type t) {
 		type = t;
 	}
 
+	/** Sets a player to the location to show that it is occupied (when the location is moved on) */
 	public void setPlayer(Player p) {
 		player = p;
 	}
 
+	/** Gets the player occupying the location */
 	public Player getPlayer() {
 		return player;
 	}

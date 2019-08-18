@@ -3,7 +3,7 @@ package code;
 import java.util.List;
 
 /**
- * Suggestion uses the set being played during a suggestion and handles moving suspected Character tokens and Weapon tokens into the room of the suggestion. 
+ * Suggestion is a set of cards which can prompt refutes from other players
  * 
  */
 public class Suggestion {

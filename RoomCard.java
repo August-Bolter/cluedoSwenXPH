@@ -1,6 +1,6 @@
 package code;
 
-/** A room card holding the name of the room */
+/** A room card associated with the name of the room */
 public class RoomCard extends Card {
 
 	private String roomName;

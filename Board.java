@@ -247,7 +247,6 @@ public class Board {
 					for(int i = 18; i < 24; i++) {
 						room.addLoc(loc[i][j]);
 						loc[i][j].setType(new Type("Room", room.getName()));
-						System.out.println(i + " " + j);
 					}
 				}
 			}
@@ -257,7 +256,6 @@ public class Board {
 					for(int i = 17; i < 24; i++) {
 						if ((i == 23 && j == 14) || (i == 23 && j == 18)) {
 							loc[i][j].setType(new Type("Wall"));
-							System.out.println(i + " " + j);
 						}
 						else if ((i == 17 && j == 14) || (i == 17 && j == 18)){
 							loc[i][j].setType(new Type("Free space"));
@@ -309,119 +307,20 @@ public class Board {
 
 	}
 
-	/** Gets the surrounding locations of a location based on coordinates */
-	public List<Location> getSurroundingLocations(int x, int y){
-		List<Location> locations = new ArrayList<Location>();
-		if (x != 0) { //So we don't get index out of bounds errors
-			locations.add(loc[x-1][y]); //WEST
-		}
-		else {locations.add(null);} //null represents a "nothing" tile (tile outside the board area)
-
-		if (x != 0 && y != 0) {
-			locations.add(loc[x-1][y-1]); //NORTHWEST
-		}
-		else {locations.add(null);}
-
-		if (y != 0) {
-			locations.add(loc[x][y-1]); //NORTH
-		}
-		else {locations.add(null);}
-
-		if (y != 0 && x != 23) {
-			locations.add(loc[x+1][y-1]); //NORTHEAST
-		}
-		else {locations.add(null);}
-
-		if (x != 23) {
-			locations.add(loc[x+1][y]); //EAST
-		}
-		else {locations.add(null);}
-
-		if (x != 23 && y != 24) {
-			locations.add(loc[x+1][y+1]); //SOUTHEAST
-		}
-		else {locations.add(null);}
-
-		if (y != 24) {
-			locations.add(loc[x][y+1]); //SOUTH
-		}
-		else {locations.add(null);}
-
-		if (y != 24 && x != 0) {
-			locations.add(loc[x-1][y+1]); //SOUTHWEST
-		}
-		else {locations.add(null);}
-
-		return locations;
-	}
-
-	/** Gets a room based on the room name */
-	public Room getRoom(String name) {
-		for (Room r : room) {
-			if (r.getName().equalsIgnoreCase(name)) {
-				return r;
-			}
-		}
-		return null;
-	}
-
-	/** Gets all the rooms */
+	/** Gets all the rooms in Cluedo */
 	public List<Room> getRoom() {
 		return room;
 	}
 	
-	public List<WeaponToken> getWeapons() {
-		return weapons;
-	}
-
-	/** Gets the closest exit of a room from a doorway
-	 * @param doorway  	location of doorway
-	 * @param room		room contains information on exit locations
-	 *  */
-	public Location getClosestExit(Location doorway, Room room) {
-		// TODO Auto-generated method stub
-		Location closest = null;
-		int min = Integer.MAX_VALUE;
-		//find closest exit
-		for (Location loc : room.getExits()) { //Going through the room exits
-			int distanceToExit = (( (loc.getX() - doorway.getX()) * (loc.getX() - doorway.getX()) ) * ( (loc.getY() - doorway.getY()) * (loc.getY() - doorway.getY()) ));
-			if (distanceToExit < min) {
-				min = distanceToExit;
-				closest = loc;				
+	/** Gets a room based on the name of the room */
+	public Room getRoom(String roomName) {
+		Room returnR = null;
+		for (Room r : room) {
+			if (r.getName().equalsIgnoreCase(roomName)) {
+				return r;
 			}
 		}
-		return closest; //location that is closest 
-	}
-
-	/** Gets the direction you would have to move in to go from a room exit to a room entrance. 
-	 * @param l				current location
-	 * @param closestExit	the location of an exit
-	 * */
-	public String getDirection(Location l, Location closestExit) {
-		// TODO Auto-generated method stub
-		String direction = "";
-
-		//NORTH
-		if (l.getX()-closestExit.getX() == 0 && l.getY()-closestExit.getY() < 0) {
-			direction = "North";
-		}
-
-		//SOUTH
-		else if (l.getX()-closestExit.getX() == 0 && l.getY()-closestExit.getY() > 0) {
-			direction = "South";
-		}
-
-		//EAST
-		else if (l.getX()-closestExit.getX() > 0 && l.getY()-closestExit.getY() == 0) {
-			direction = "East";
-		}
-
-		//WEST
-		else if (l.getX()-closestExit.getX() < 0 && l.getY()-closestExit.getY() == 0) {
-			direction = "West";
-		}
-
-		return direction;
+		return returnR;
 	}
 
 }

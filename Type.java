@@ -1,15 +1,15 @@
 package code;
 
-//This class represents the type a location could be
+/** This class represents the type a location could be */
 public class Type{
 	private loctype r; //The type of location is represented using an enum
-	private String roomName; //If the type of location is a room than the name will also be stored
+	private String roomName; //If the type of location is a room than the room name will also be stored
 
 	//The four different types
 	public enum loctype {
 		FREESPACE, //Hallways, starting locations, locations that players can always access
 		WALL, //Walls that are scattered around the board
-		DOORWAY, //Inside the room, but on the outer edge next to the entrance
+		DOORWAY, //Entrance to the room, on the outer edge
 		ROOM //Inside the room and not the doorway
 	}
 
@@ -40,7 +40,7 @@ public class Type{
 		roomName = s1;
 	}
 
-	/** Gets the name of type, for outputting throughout the game. Doorways have a different name value than normal room tiles */
+	/** Gets the name of type. Doorways have a different name value than normal room tiles */
 	public String getName() {
 		if (r == loctype.FREESPACE) {
 			return "Free space";
