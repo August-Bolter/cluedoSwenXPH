@@ -17,6 +17,7 @@ public class Game {
 	private List<RoomCard> roomCards;
  
 	private List<Player> players; //The players in the game
+	private ArrayList<Location> inaccessibleEntrances;
 	private Board board; //The cluedo board
 	private boolean gameOver; //true if the game is over, false otherwise
 	private Player currentPlayer;
@@ -39,6 +40,7 @@ public class Game {
 		characterCards = new ArrayList<CharacterCard>();
 		roomCards = new ArrayList<RoomCard>();
 		players = new ArrayList<Player>();
+		inaccessibleEntrances = new ArrayList<Location>();
 		gameOver = false;
 		allCards = new ArrayList<Card>();
 		endingEarly = false;
@@ -86,6 +88,10 @@ public class Game {
 	
 	public boolean canMove() {
 		return canMove;
+	}
+	
+	public ArrayList<Location> getInaccesibleLocations() {
+		return inaccessibleEntrances;
 	}
 	
 	public Gui getGui() {
@@ -1016,6 +1022,10 @@ public class Game {
 			if (l.getX() == moveLocation.getX() && l.getY() == moveLocation.getY()) {
 				if(board.getLocation(l.getX(), l.getY()).getPlayer() == null) {
 					currentPlayersTurn.moveToExit(moveLocation);
+					currentPlayer.setPastRoom(playerRoom);
+					for (Location loc : playerRoom.getLoc()) {
+						inaccessibleEntrances.add(board.getLocation(loc.getX(), loc.getY()));
+					}
 					return true;
 				}
 			}
@@ -1033,6 +1043,8 @@ public class Game {
 	}
 
 	public void nextTurn() {
+		currentPlayer.setPastRoom(null);
+		inaccessibleEntrances = new ArrayList<Location>();
 		int playerIndex = 0;
 		for (Player p : players) {
 			if (p == currentPlayer) {

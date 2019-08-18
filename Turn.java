@@ -143,6 +143,18 @@ public class Turn {
 			//Can only move into a free space or doorway
 			if (moveLocation.getType().getLocType() == loctype.FREESPACE || moveLocation.getType().getLocType() == loctype.DOORWAY) {
 				if (!previousLocations.contains(moveLocation) && moveLocation.getPlayer() == null) { //Can't move onto locations that have been moved in the same turn
+					if (moveLocation.getType().getLocType() == loctype.DOORWAY) {
+						for (Room r : game.getBoard().getRoom()) {
+							for (Location l : r.getLoc()) {
+								if (l.getX() == moveLocation.getX() && l.getY() == moveLocation.getY()) {
+									if (r == game.getCurrentPlayer().getPastRoom()) {
+										return false;
+									}
+								}
+							}
+						}
+					}
+					game.getCurrentPlayer().getPastRoom();
 					int newX = moveLocation.getX();
 					int newY = moveLocation.getY();			
 					//Check if they are only moving one step
@@ -180,7 +192,7 @@ public class Turn {
 							indexX++;
 							if (indexX == 2) {
 								indexX = 0;
-								indexY = 1;
+								indexY++;
 							}
 						}
 						game.getBoard().getLocation(player.getToken().getX(), player.getToken().getY()).setPlayer(null);
