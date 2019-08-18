@@ -1,4 +1,4 @@
-package Java;
+package code;
 
 /**
  * a single Accusation can be made by a player when it is their Turn

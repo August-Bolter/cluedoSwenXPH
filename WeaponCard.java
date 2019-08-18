@@ -1,4 +1,4 @@
-package Java;
+package code;
 
 //A weapon card consisting of the name of the weapon
 public class WeaponCard extends Card {

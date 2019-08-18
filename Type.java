@@ -1,4 +1,4 @@
-package Java;
+package code;
 
 //This class represents the type a location could be
 public class Type{

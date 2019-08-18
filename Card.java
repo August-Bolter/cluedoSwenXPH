@@ -1,4 +1,4 @@
-package Java;
+package code;
 
 //A class representing the cards that Cluedo has
 public class Card {

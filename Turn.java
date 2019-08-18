@@ -142,7 +142,7 @@ public class Turn {
 		if (steps > 0) { //They need to have moves left
 			//Can only move into a free space or doorway
 			if (moveLocation.getType().getLocType() == loctype.FREESPACE || moveLocation.getType().getLocType() == loctype.DOORWAY) {
-				if (!previousLocations.contains(moveLocation)) { //Can't move onto locations that have been moved in the same turn
+				if (!previousLocations.contains(moveLocation) && moveLocation.getPlayer() == null) { //Can't move onto locations that have been moved in the same turn
 					int newX = moveLocation.getX();
 					int newY = moveLocation.getY();			
 					//Check if they are only moving one step
@@ -161,9 +161,11 @@ public class Turn {
 	public void move(Location moveLocation, Game game) {
 		Location prevLoc = game.getBoard().getLocation(player.getToken().getX(), player.getToken().getY());
 		previousLocations.add(prevLoc);
+		prevLoc.setPlayer(null);
 		game.getGui().clearEntranceLabel(new Location(player.getToken().getX(), player.getToken().getY()));
 		player.getToken().setXPos(moveLocation.getX());
 		player.getToken().setYPos(moveLocation.getY());
+		moveLocation.setPlayer(player);
 		steps--;
 		//If we have entered a room
 		Location playerLocation = game.getBoard().getLocation(player.getToken().getX(), player.getToken().getY());
@@ -181,9 +183,11 @@ public class Turn {
 								indexY = 1;
 							}
 						}
+						game.getBoard().getLocation(player.getToken().getX(), player.getToken().getY()).setPlayer(null);
 						Location topLeft = r.getLoc().get(0);
 						player.getToken().setXPos(topLeft.getX()+3+indexX);
 						player.getToken().setYPos(topLeft.getY()+1+indexY);
+						game.getBoard().getLocation(topLeft.getX()+3+indexX, topLeft.getY()+1+indexY).setPlayer(player);
 						player.getToken().setRoom(r);
 						r.addPlayer(player);
 					}
@@ -227,12 +231,14 @@ public class Turn {
 						indexX++;
 						if (indexX == 2) {
 							indexX = 0;
-							indexY = 1;
+							indexY++;
 						}
 					}
 					Location topLeft = room.getLoc().get(0);
+					game.getBoard().getLocation(player.getToken().getX(), player.getToken().getY()).setPlayer(null);
 					p.getToken().setXPos(topLeft.getX()+3+indexX);
 					p.getToken().setYPos(topLeft.getY()+1+indexY);
+					board.getLocation(topLeft.getX()+3+indexX, topLeft.getY()+1+indexY).setPlayer(p);
 					
 					p.getToken().setRoom(room); //Then change the room of the player
 					room.addPlayer(p);
@@ -306,9 +312,10 @@ public class Turn {
 	}
 
 	public void moveToExit(Location moveLocation) {
-		// TODO Auto-generated method stub
+		game.getBoard().getLocation(player.getToken().getX(), player.getToken().getY()).setPlayer(null);
 		game.getCurrentPlayer().getToken().setXPos(moveLocation.getX());
 		game.getCurrentPlayer().getToken().setYPos(moveLocation.getY());
+		moveLocation.setPlayer(player);
 		game.getCurrentPlayer().getToken().setRoom(null);
 		
 		for (Room r : game.getBoard().getRoom()) {

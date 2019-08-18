@@ -137,7 +137,7 @@ public class Room {
 			doorwayExit.add(new Location(6, 16));
 			doorwayExit.add(new Location(8, 12));
 		}
-		else if (name.equalsIgnoreCase("Billard Room")) {
+		else if (name.equalsIgnoreCase("Billiard Room")) {
 			//Entrances
 			Location l = new Location(18, 9);
 			l.setType(new Type("Doorway", name));

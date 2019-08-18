@@ -1014,8 +1014,10 @@ public class Game {
 		Room playerRoom = currentPlayer.getToken().getRoom();
 		for (Location l : playerRoom.getExits()) {
 			if (l.getX() == moveLocation.getX() && l.getY() == moveLocation.getY()) {
-				currentPlayersTurn.moveToExit(moveLocation);
-				return true;
+				if(board.getLocation(l.getX(), l.getY()).getPlayer() == null) {
+					currentPlayersTurn.moveToExit(moveLocation);
+					return true;
+				}
 			}
 		}
 		return false;

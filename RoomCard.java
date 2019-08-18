@@ -1,4 +1,4 @@
-package Java;
+package code;
 
 /** A room card holding the name of the room */
 public class RoomCard extends Card {

@@ -1,4 +1,4 @@
-package Java;
+package code;
 
 /**
  * Weapon tokens 

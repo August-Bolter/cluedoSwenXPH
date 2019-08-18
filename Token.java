@@ -1,4 +1,4 @@
-package Java;
+package code;
 
 /** The structure of a token in Cluedo (WeaponToken, CharacterToken) */
 public class Token {

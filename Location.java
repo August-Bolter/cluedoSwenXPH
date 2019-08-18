@@ -1,4 +1,4 @@
-package Java;
+package code;
 
 /** Represents a location on the board. */
 

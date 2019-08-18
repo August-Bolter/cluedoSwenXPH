@@ -1,4 +1,4 @@
-package Java;
+package code;
 
 /** Contains a set of cards, one weapon card, one character card and one room card in that order. */
 public class CardSet {
@@ -12,18 +12,16 @@ public class CardSet {
 		characterC = aCharacterC;
 		roomC = aRoomC;
 	}
-	
-	//gets the Weapon card in the CardSet
-	public WeaponCard getWeaponCard() {
+
+	public WeaponCard getWeaponC() {
 		return weaponC;
 	}
-	 //gets the CharacterCard in the CardSet
-	public CharacterCard getCharacterCard() {
+
+	public CharacterCard getCharacterC() {
 		return characterC;
 	}
-	
-	//gets the RoomCard in the CardSet
-	public RoomCard getRoomCard() {
+
+	public RoomCard getRoomC() {
 		return roomC;
 	}
 }

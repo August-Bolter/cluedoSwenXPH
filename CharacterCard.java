@@ -1,4 +1,4 @@
-package Java;
+package code;
 
 /** A character card consisting of the name of the character.*/
 public class CharacterCard extends Card
