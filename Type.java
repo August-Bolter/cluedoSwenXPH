@@ -53,5 +53,10 @@ public class Type{
 		}
 		return roomName;
 	}
+	
+	/** Returns the room name assuming the type is a doorway */
+	public String getRoomName() {
+		return roomName;
+	}
 
 }

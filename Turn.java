@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
+import java.awt.Color;
 import code.Type.loctype;
 
 /**
@@ -99,6 +99,7 @@ public class Turn {
 				if (!previousLocations.contains(moveLocation) && moveLocation.getPlayer() == null) { 
 					//Checking that the player isn't trying to reenter a room they have been in this turn
 					if (moveLocation.getType().getLocType() == loctype.DOORWAY) { //Only concerns trying to move into doorways
+						boolean onExit = false;
 						for (Room r : game.getBoard().getRoom()) {
 							for (Location l : r.getLoc()) {
 								if (l.getX() == moveLocation.getX() && l.getY() == moveLocation.getY()) {
@@ -107,6 +108,18 @@ public class Turn {
 									}
 								}
 							}
+							//Checking that player is moving in from the entrance to the doorway, i.e. moving into the room in the right direction
+							for (Location exit : r.getExits()) {
+								if (exit.getX() == game.getCurrentPlayer().getToken().getX() && exit.getY() == game.getCurrentPlayer().getToken().getY()) {
+									onExit = true;
+								}
+							}
+							if (onExit) {
+								break;
+							}
+						}
+						if (!onExit) {
+							return false;
 						}
 					}
 					int newX = moveLocation.getX();
